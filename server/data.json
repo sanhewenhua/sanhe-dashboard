@@ -1,0 +1,1863 @@
+{
+  "staff": [
+    {
+      "id": "s1",
+      "name": "程杰",
+      "roles": [
+        "组长",
+        "编导"
+      ],
+      "groupId": "A",
+      "status": "在职"
+    },
+    {
+      "id": "s2",
+      "name": "王鸿玉",
+      "roles": [
+        "剪辑"
+      ],
+      "groupId": "A",
+      "status": "在职"
+    },
+    {
+      "id": "s3",
+      "name": "吴美玲",
+      "roles": [
+        "文案"
+      ],
+      "groupId": "A",
+      "status": "在职"
+    },
+    {
+      "id": "s4",
+      "name": "周云飞",
+      "roles": [
+        "组长",
+        "摄影师"
+      ],
+      "groupId": "B",
+      "status": "在职"
+    },
+    {
+      "id": "s5",
+      "name": "张誉馨",
+      "roles": [
+        "剪辑"
+      ],
+      "groupId": "B",
+      "status": "在职"
+    },
+    {
+      "id": "s6",
+      "name": "刘晓芳",
+      "roles": [
+        "文案"
+      ],
+      "groupId": "B",
+      "status": "在职"
+    },
+    {
+      "id": "s7",
+      "name": "张洋",
+      "roles": [
+        "组长",
+        "摄影师"
+      ],
+      "groupId": "C",
+      "status": "在职"
+    },
+    {
+      "id": "s8",
+      "name": "张若琪",
+      "roles": [
+        "剪辑"
+      ],
+      "groupId": "C",
+      "status": "在职"
+    },
+    {
+      "id": "s9",
+      "name": "李云佳",
+      "roles": [
+        "文案"
+      ],
+      "groupId": "C",
+      "status": "在职"
+    },
+    {
+      "id": "s10",
+      "name": "刘润琴",
+      "roles": [
+        "剪辑学徒"
+      ],
+      "groupId": "none",
+      "status": "在职"
+    }
+  ],
+  "groups": [
+    {
+      "id": "A",
+      "name": "A组",
+      "leaderId": "s1"
+    },
+    {
+      "id": "B",
+      "name": "B组",
+      "leaderId": "s4"
+    },
+    {
+      "id": "C",
+      "name": "C组",
+      "leaderId": "s7"
+    }
+  ],
+  "projects": [
+    {
+      "id": "p1",
+      "groupId": "A",
+      "name": "AGA官号",
+      "contactName": "胡总",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付·官号1000",
+      "paymentType": "月付后付",
+      "paymentDate": "每月5日",
+      "monthlyFee": 1000,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s1"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s3"
+      ],
+      "videographerIds": [
+        "s3"
+      ],
+      "editorIds": [
+        "s2",
+        "s10"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:10:47.946Z"
+    },
+    {
+      "id": "p1b",
+      "groupId": "A",
+      "name": "AGA胡总号",
+      "contactName": "胡总",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付·胡总号5000",
+      "paymentType": "月付后付",
+      "paymentDate": "每月5日",
+      "monthlyFee": 5000,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s1"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s1"
+      ],
+      "videographerIds": [
+        "s1"
+      ],
+      "editorIds": [
+        "s1",
+        "s2"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T11:16:31.738Z"
+    },
+    {
+      "id": "p3",
+      "groupId": "C",
+      "name": "拾景园官号",
+      "contactName": "袁姐",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付·官号2400",
+      "paymentType": "月付后付",
+      "paymentDate": "每月20日",
+      "monthlyFee": 2400,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s3"
+      ],
+      "videographerIds": [
+        "s3",
+        "s7"
+      ],
+      "editorIds": [
+        "s2",
+        "s10"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T11:17:13.642Z"
+    },
+    {
+      "id": "p3b",
+      "groupId": "C",
+      "name": "拾景园人设号",
+      "contactName": "袁姐",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付·人设号1600",
+      "paymentType": "月付后付",
+      "paymentDate": "每月20日",
+      "monthlyFee": 1600,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s3"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s2"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:12:34.430Z"
+    },
+    {
+      "id": "p4",
+      "groupId": "A",
+      "name": "领禹一人多角",
+      "contactName": "朱总",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付",
+      "paymentType": "月付后付",
+      "paymentDate": "每月12日",
+      "monthlyFee": 1500,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s1"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s3"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s2"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:16:30.984Z"
+    },
+    {
+      "id": "p5",
+      "groupId": "A",
+      "name": "程杰IP账号",
+      "contactName": "程杰",
+      "status": "进行中",
+      "cooperationPeriod": "自有账号",
+      "paymentType": "月付后付",
+      "paymentDate": "不付（自有账号）",
+      "monthlyFee": 0,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s1"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s1"
+      ],
+      "videographerIds": [
+        "s4",
+        "s7"
+      ],
+      "editorIds": [
+        "s2"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T11:07:11.018Z"
+    },
+    {
+      "id": "p6",
+      "groupId": "A",
+      "name": "叁和公司营销视频",
+      "contactName": "周云飞",
+      "status": "进行中",
+      "cooperationPeriod": "自有账号",
+      "paymentType": "月付后付",
+      "paymentDate": "不付（自有账号）",
+      "monthlyFee": 0,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s1"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s3"
+      ],
+      "videographerIds": [
+        "s3"
+      ],
+      "editorIds": [
+        "s2",
+        "s10"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:20:03.259Z"
+    },
+    {
+      "id": "p7",
+      "groupId": "A",
+      "name": "成都米线",
+      "contactName": "鹏哥",
+      "status": "进行中",
+      "cooperationPeriod": "首批次6条·先付已付",
+      "paymentType": "一次性",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 3600,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s1"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s1"
+      ],
+      "videographerIds": [
+        "s1",
+        "s4"
+      ],
+      "editorIds": [
+        "s1",
+        "s2",
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:21:35.395Z"
+    },
+    {
+      "id": "p8",
+      "groupId": "B",
+      "name": "鑫盛租车",
+      "contactName": "琳琳",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付·租车4000",
+      "paymentType": "月付后付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 4000,
+      "startDate": "2026-05-01",
+      "leaderIds": [
+        "s4"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s6"
+      ],
+      "videographerIds": [
+        "s4"
+      ],
+      "editorIds": [
+        "s5"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:22:21.388Z"
+    },
+    {
+      "id": "p8b",
+      "groupId": "B",
+      "name": "鑫盛贴膜汽修",
+      "contactName": "琳琳",
+      "status": "暂停",
+      "cooperationPeriod": "暂停·无费用",
+      "paymentType": "月付后付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 0,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s4"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s6"
+      ],
+      "videographerIds": [
+        "s4"
+      ],
+      "editorIds": [
+        "s5"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:25:58.637Z"
+    },
+    {
+      "id": "p9",
+      "groupId": "B",
+      "name": "华筑自建房",
+      "contactName": "杨总",
+      "status": "进行中",
+      "cooperationPeriod": "月付预付·已付+提成2%",
+      "paymentType": "月付预付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 6000,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s4"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s6"
+      ],
+      "videographerIds": [
+        "s4"
+      ],
+      "editorIds": [
+        "s5"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:28:12.477Z"
+    },
+    {
+      "id": "p10",
+      "groupId": "B",
+      "name": "桥通五洲",
+      "contactName": "黄思怡",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付",
+      "paymentType": "月付后付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 5000,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s4"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s6"
+      ],
+      "videographerIds": [
+        "s4",
+        "s5"
+      ],
+      "editorIds": [
+        "s5"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:29:18.154Z"
+    },
+    {
+      "id": "p11",
+      "groupId": "B",
+      "name": "炒甘花露",
+      "contactName": "何姐",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付",
+      "paymentType": "月付后付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 3500,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s4"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s6"
+      ],
+      "videographerIds": [
+        "s4",
+        "s5"
+      ],
+      "editorIds": [
+        "s5"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:31:14.098Z"
+    },
+    {
+      "id": "p12",
+      "groupId": "B",
+      "name": "喜灶食品厂",
+      "contactName": "滕总",
+      "status": "进行中",
+      "cooperationPeriod": "首批12条·先付50%后付50%",
+      "paymentType": "一次性",
+      "paymentDate": "首次拍摄收50%，预计8月16日",
+      "monthlyFee": 6000,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s4"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s1",
+        "s6"
+      ],
+      "videographerIds": [
+        "s4"
+      ],
+      "editorIds": [
+        "s5"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:44:17.238Z"
+    },
+    {
+      "id": "p14",
+      "groupId": "C",
+      "name": "五通桥中医院",
+      "contactName": "许科长",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付",
+      "paymentType": "月付后付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 2000,
+      "startDate": "2026-06-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:36:55.789Z"
+    },
+    {
+      "id": "p15",
+      "groupId": "C",
+      "name": "太菲教育",
+      "contactName": "小武老师",
+      "status": "进行中",
+      "cooperationPeriod": "月付预付·已付",
+      "paymentType": "月付预付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 3000,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:39:42.651Z"
+    },
+    {
+      "id": "p16",
+      "groupId": "C",
+      "name": "莳一面馆",
+      "contactName": "莳一",
+      "status": "进行中",
+      "cooperationPeriod": "月付预付·已付",
+      "paymentType": "月付预付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 4500,
+      "startDate": "2026-07-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T11:15:49.127Z"
+    },
+    {
+      "id": "p17",
+      "groupId": "C",
+      "name": "酒小二",
+      "contactName": "张梦",
+      "status": "进行中",
+      "cooperationPeriod": "月付预付·等脚本定稿",
+      "paymentType": "月付预付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 5000,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:41:40.071Z"
+    },
+    {
+      "id": "p18",
+      "groupId": "C",
+      "name": "四喜棋牌室",
+      "contactName": "杨总",
+      "status": "进行中",
+      "cooperationPeriod": "首批20条·先付等脚本定稿",
+      "paymentType": "一次性",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 8000,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:42:17.477Z"
+    },
+    {
+      "id": "p19",
+      "groupId": "C",
+      "name": "强哥热卤",
+      "contactName": "杨总",
+      "status": "进行中",
+      "cooperationPeriod": "首批10条·先付等脚本定稿",
+      "paymentType": "一次性",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 4000,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:42:55.340Z"
+    },
+    {
+      "id": "p20",
+      "groupId": "C",
+      "name": "艾美花园饭店",
+      "contactName": "余总",
+      "status": "进行中",
+      "cooperationPeriod": "月付后付",
+      "paymentType": "月付后付",
+      "paymentDate": "根据情况而定",
+      "monthlyFee": 4000,
+      "startDate": "2026-06-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "createdAt": "2026-08-10T10:08:21.940Z",
+      "updatedAt": "2026-08-10T10:43:19.871Z"
+    },
+    {
+      "groupId": "C",
+      "name": "瀚林抵押",
+      "contactName": "瀚林哥",
+      "status": "进行中",
+      "cooperationPeriod": "尝试一个月",
+      "paymentType": "月付后付",
+      "paymentDate": "0",
+      "monthlyFee": 50,
+      "startDate": "2026-08-01",
+      "leaderIds": [
+        "s7"
+      ],
+      "directorIds": [],
+      "copywriterIds": [
+        "s9"
+      ],
+      "videographerIds": [
+        "s7"
+      ],
+      "editorIds": [
+        "s8"
+      ],
+      "id": "p_1786360301291_9o8gg",
+      "createdAt": "2026-08-10T11:11:41.291Z",
+      "updatedAt": "2026-08-10T11:11:41.291Z"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "a1",
+      "projectId": "p1",
+      "name": "AGA官号",
+      "monthlyQuota": 10,
+      "status": "正常"
+    },
+    {
+      "id": "a2",
+      "projectId": "p1b",
+      "name": "AGA胡总号",
+      "monthlyQuota": 25,
+      "status": "正常"
+    },
+    {
+      "id": "a3",
+      "projectId": "p3",
+      "name": "拾景园官号",
+      "monthlyQuota": 15,
+      "status": "正常"
+    },
+    {
+      "id": "a4",
+      "projectId": "p3b",
+      "name": "拾景园人设号",
+      "monthlyQuota": 10,
+      "status": "正常"
+    },
+    {
+      "id": "a5",
+      "projectId": "p4",
+      "name": "领禹一人多角",
+      "monthlyQuota": 15,
+      "status": "正常"
+    },
+    {
+      "id": "a6",
+      "projectId": "p5",
+      "name": "程杰IP",
+      "monthlyQuota": 8,
+      "status": "正常"
+    },
+    {
+      "id": "a7",
+      "projectId": "p6",
+      "name": "叁和营销号",
+      "monthlyQuota": 4,
+      "status": "正常"
+    },
+    {
+      "id": "a8",
+      "projectId": "p7",
+      "name": "成都米线号",
+      "monthlyQuota": 6,
+      "status": "正常"
+    },
+    {
+      "id": "a9",
+      "projectId": "p8",
+      "name": "鑫盛租车",
+      "monthlyQuota": 15,
+      "status": "正常"
+    },
+    {
+      "id": "a10",
+      "projectId": "p8b",
+      "name": "鑫盛贴膜汽修",
+      "monthlyQuota": 60,
+      "status": "暂停"
+    },
+    {
+      "id": "a11",
+      "projectId": "p9",
+      "name": "华筑自建房",
+      "monthlyQuota": 12,
+      "status": "正常"
+    },
+    {
+      "id": "a12",
+      "projectId": "p10",
+      "name": "桥通五洲",
+      "monthlyQuota": 8,
+      "status": "正常"
+    },
+    {
+      "id": "a13",
+      "projectId": "p11",
+      "name": "炒甘花露",
+      "monthlyQuota": 10,
+      "status": "正常"
+    },
+    {
+      "id": "a14",
+      "projectId": "p12",
+      "name": "喜灶食品厂",
+      "monthlyQuota": 12,
+      "status": "正常"
+    },
+    {
+      "id": "a16",
+      "projectId": "p14",
+      "name": "五通桥中医院",
+      "monthlyQuota": 4,
+      "status": "正常"
+    },
+    {
+      "id": "a17",
+      "projectId": "p15",
+      "name": "太菲教育",
+      "monthlyQuota": 10,
+      "status": "正常"
+    },
+    {
+      "id": "a18",
+      "projectId": "p16",
+      "name": "莳一面馆",
+      "monthlyQuota": 15,
+      "status": "正常"
+    },
+    {
+      "id": "a19",
+      "projectId": "p17",
+      "name": "酒小二",
+      "monthlyQuota": 10,
+      "status": "正常"
+    },
+    {
+      "id": "a20",
+      "projectId": "p18",
+      "name": "四喜棋牌室",
+      "monthlyQuota": 20,
+      "status": "正常"
+    },
+    {
+      "id": "a21",
+      "projectId": "p19",
+      "name": "强哥热卤",
+      "monthlyQuota": 10,
+      "status": "正常"
+    },
+    {
+      "id": "a22",
+      "projectId": "p20",
+      "name": "艾美花园饭店",
+      "monthlyQuota": 14,
+      "status": "正常"
+    },
+    {
+      "name": "瀚林哥",
+      "monthlyQuota": 10,
+      "projectId": "p_1786360301291_9o8gg",
+      "status": "正常",
+      "id": "a_1786360319425_13gyr"
+    }
+  ],
+  "monthlyRecords": [
+    {
+      "id": "mr_a1_2026-08",
+      "accountId": "a1",
+      "projectId": "p1",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 0,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 1000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a2_2026-08",
+      "accountId": "a2",
+      "projectId": "p1b",
+      "yearMonth": "2026-08",
+      "plannedCount": 25,
+      "completedCount": 10,
+      "thisWeekPlan": 7,
+      "lastWeekPlan": 7,
+      "lastWeekActual": 0,
+      "paymentAmount": 5000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a3_2026-08",
+      "accountId": "a3",
+      "projectId": "p3",
+      "yearMonth": "2026-08",
+      "plannedCount": 15,
+      "completedCount": 10,
+      "thisWeekPlan": 4,
+      "lastWeekPlan": 4,
+      "lastWeekActual": 0,
+      "paymentAmount": 2400,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a4_2026-08",
+      "accountId": "a4",
+      "projectId": "p3b",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 4,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 3000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a5_2026-08",
+      "accountId": "a5",
+      "projectId": "p4",
+      "yearMonth": "2026-08",
+      "plannedCount": 15,
+      "completedCount": 0,
+      "thisWeekPlan": 4,
+      "lastWeekPlan": 4,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a6_2026-08",
+      "accountId": "a6",
+      "projectId": "p5",
+      "yearMonth": "2026-08",
+      "plannedCount": 8,
+      "completedCount": 0,
+      "thisWeekPlan": 2,
+      "lastWeekPlan": 2,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "不付",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a7_2026-08",
+      "accountId": "a7",
+      "projectId": "p6",
+      "yearMonth": "2026-08",
+      "plannedCount": 4,
+      "completedCount": 2,
+      "thisWeekPlan": 1,
+      "lastWeekPlan": 1,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "不付",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a8_2026-08",
+      "accountId": "a8",
+      "projectId": "p7",
+      "yearMonth": "2026-08",
+      "plannedCount": 6,
+      "completedCount": 6,
+      "thisWeekPlan": 2,
+      "lastWeekPlan": 2,
+      "lastWeekActual": 0,
+      "paymentAmount": 3600,
+      "paymentStatus": "已收",
+      "paidAmount": 3600
+    },
+    {
+      "id": "mr_a9_2026-08",
+      "accountId": "a9",
+      "projectId": "p8",
+      "yearMonth": "2026-08",
+      "plannedCount": 15,
+      "completedCount": 9,
+      "thisWeekPlan": 4,
+      "lastWeekPlan": 4,
+      "lastWeekActual": 0,
+      "paymentAmount": 4000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a10_2026-08",
+      "accountId": "a10",
+      "projectId": "p8b",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 10,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a11_2026-08",
+      "accountId": "a11",
+      "projectId": "p9",
+      "yearMonth": "2026-08",
+      "plannedCount": 12,
+      "completedCount": 4,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 6000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a12_2026-08",
+      "accountId": "a12",
+      "projectId": "p10",
+      "yearMonth": "2026-08",
+      "plannedCount": 8,
+      "completedCount": 4,
+      "thisWeekPlan": 2,
+      "lastWeekPlan": 2,
+      "lastWeekActual": 0,
+      "paymentAmount": 5000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a13_2026-08",
+      "accountId": "a13",
+      "projectId": "p11",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 6,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 3500,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a14_2026-08",
+      "accountId": "a14",
+      "projectId": "p12",
+      "yearMonth": "2026-08",
+      "plannedCount": 12,
+      "completedCount": 0,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 6000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a16_2026-08",
+      "accountId": "a16",
+      "projectId": "p14",
+      "yearMonth": "2026-08",
+      "plannedCount": 0,
+      "completedCount": 0,
+      "thisWeekPlan": 1,
+      "lastWeekPlan": 1,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a17_2026-08",
+      "accountId": "a17",
+      "projectId": "p15",
+      "yearMonth": "2026-08",
+      "plannedCount": 3,
+      "completedCount": 2,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 3000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a18_2026-08",
+      "accountId": "a18",
+      "projectId": "p16",
+      "yearMonth": "2026-08",
+      "plannedCount": 9,
+      "completedCount": 6,
+      "thisWeekPlan": 4,
+      "lastWeekPlan": 4,
+      "lastWeekActual": 0,
+      "paymentAmount": 4500,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a19_2026-08",
+      "accountId": "a19",
+      "projectId": "p17",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 0,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 5000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a20_2026-08",
+      "accountId": "a20",
+      "projectId": "p18",
+      "yearMonth": "2026-08",
+      "plannedCount": 20,
+      "completedCount": 0,
+      "thisWeekPlan": 5,
+      "lastWeekPlan": 5,
+      "lastWeekActual": 0,
+      "paymentAmount": 8000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a21_2026-08",
+      "accountId": "a21",
+      "projectId": "p19",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 0,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 3,
+      "lastWeekActual": 0,
+      "paymentAmount": 4000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a22_2026-08",
+      "accountId": "a22",
+      "projectId": "p20",
+      "yearMonth": "2026-08",
+      "plannedCount": 14,
+      "completedCount": 4,
+      "thisWeekPlan": 4,
+      "lastWeekPlan": 4,
+      "lastWeekActual": 0,
+      "paymentAmount": 4000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a1_2026-07",
+      "accountId": "a1",
+      "projectId": "p1",
+      "yearMonth": "2026-07",
+      "plannedCount": 10,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a2_2026-07",
+      "accountId": "a2",
+      "projectId": "p1b",
+      "yearMonth": "2026-07",
+      "plannedCount": 25,
+      "completedCount": 25,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 5000,
+      "paymentStatus": "未收",
+      "paidAmount": 5000
+    },
+    {
+      "id": "mr_a3_2026-07",
+      "accountId": "a3",
+      "projectId": "p3",
+      "yearMonth": "2026-07",
+      "plannedCount": 15,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a4_2026-07",
+      "accountId": "a4",
+      "projectId": "p3b",
+      "yearMonth": "2026-07",
+      "plannedCount": 10,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a5_2026-07",
+      "accountId": "a5",
+      "projectId": "p4",
+      "yearMonth": "2026-07",
+      "plannedCount": 15,
+      "completedCount": 15,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 1500,
+      "paymentStatus": "未收",
+      "paidAmount": 1500
+    },
+    {
+      "id": "mr_a6_2026-07",
+      "accountId": "a6",
+      "projectId": "p5",
+      "yearMonth": "2026-07",
+      "plannedCount": 8,
+      "completedCount": 3,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "不付",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a7_2026-07",
+      "accountId": "a7",
+      "projectId": "p6",
+      "yearMonth": "2026-07",
+      "plannedCount": 4,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "不付",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a9_2026-07",
+      "accountId": "a9",
+      "projectId": "p8",
+      "yearMonth": "2026-07",
+      "plannedCount": 15,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a10_2026-07",
+      "accountId": "a10",
+      "projectId": "p8b",
+      "yearMonth": "2026-07",
+      "plannedCount": 50,
+      "completedCount": 50,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 7000,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a11_2026-07",
+      "accountId": "a11",
+      "projectId": "p9",
+      "yearMonth": "2026-07",
+      "plannedCount": 0,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a12_2026-07",
+      "accountId": "a12",
+      "projectId": "p10",
+      "yearMonth": "2026-07",
+      "plannedCount": 0,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_a13_2026-07",
+      "accountId": "a13",
+      "projectId": "p11",
+      "yearMonth": "2026-07",
+      "plannedCount": 10,
+      "completedCount": 8,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 3500,
+      "paymentStatus": "已收",
+      "paidAmount": 3500
+    },
+    {
+      "id": "mr_a16_2026-07",
+      "accountId": "a16",
+      "projectId": "p14",
+      "yearMonth": "2026-07",
+      "plannedCount": 4,
+      "completedCount": 4,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 2000,
+      "paymentStatus": "未收",
+      "paidAmount": 2000
+    },
+    {
+      "id": "mr_a17_2026-07",
+      "accountId": "a17",
+      "projectId": "p15",
+      "yearMonth": "2026-07",
+      "plannedCount": 7,
+      "completedCount": 7,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 3000,
+      "paymentStatus": "未收",
+      "paidAmount": 3000
+    },
+    {
+      "id": "mr_a18_2026-07",
+      "accountId": "a18",
+      "projectId": "p16",
+      "yearMonth": "2026-07",
+      "plannedCount": 6,
+      "completedCount": 6,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 4500,
+      "paymentStatus": "已收",
+      "paidAmount": 4500
+    },
+    {
+      "id": "mr_a22_2026-07",
+      "accountId": "a22",
+      "projectId": "p20",
+      "yearMonth": "2026-07",
+      "plannedCount": 0,
+      "completedCount": 0,
+      "thisWeekPlan": 0,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    },
+    {
+      "id": "mr_1786360319425_7lf9a",
+      "accountId": "a_1786360319425_13gyr",
+      "projectId": "p_1786360301291_9o8gg",
+      "yearMonth": "2026-08",
+      "plannedCount": 10,
+      "completedCount": 6,
+      "thisWeekPlan": 3,
+      "lastWeekPlan": 0,
+      "lastWeekActual": 0,
+      "paymentAmount": 0,
+      "paymentStatus": "未收",
+      "paidAmount": 0
+    }
+  ],
+  "issues": [],
+  "leads": [
+    {
+      "name": "西昌矿泉水厂",
+      "contactName": "宋总",
+      "negotiatorId": "s1",
+      "groupId": "A",
+      "estimatedMonthlyFee": "10000",
+      "stage": "待签约",
+      "stageNote": "待合同确定",
+      "nextFollowUpDate": "2026-08-20",
+      "id": "l_1786362089281_y3x4t",
+      "createdAt": "2026-08-10T11:41:29.281Z",
+      "updatedAt": "2026-08-10T11:41:29.281Z"
+    },
+    {
+      "id": "l1",
+      "name": "西昌加古尔矿泉水",
+      "contactName": "宋总",
+      "contactInfo": "",
+      "negotiatorId": "s1",
+      "groupId": "A",
+      "estimatedMonthlyFee": 10000,
+      "estimatedAccounts": "每月10-15条，先付20%完成付80%",
+      "stage": "已签约转正式",
+      "stageNote": "每月10-15条，先付20%完成付80%",
+      "nextFollowUpDate": "",
+      "createdAt": "2026-08-01",
+      "updatedAt": "2026-08-10T11:31:25.541Z"
+    },
+    {
+      "id": "l2",
+      "name": "重庆新乐园KTV",
+      "contactName": "徐总",
+      "contactInfo": "",
+      "negotiatorId": "s1",
+      "groupId": "A",
+      "estimatedAccounts": "",
+      "stage": "初次接触",
+      "stageNote": "初次接触，了解需求中",
+      "nextFollowUpDate": "",
+      "createdAt": "2026-08-05",
+      "updatedAt": "2026-08-10T11:40:35.569Z",
+      "estimatedMonthlyFee": 15000
+    },
+    {
+      "id": "l3",
+      "name": "成都足浴联盟",
+      "contactName": "宋总",
+      "contactInfo": "",
+      "negotiatorId": "s1",
+      "groupId": "A",
+      "estimatedAccounts": "",
+      "stage": "方案报价",
+      "stageNote": "初次接触，了解需求中",
+      "nextFollowUpDate": "",
+      "createdAt": "2026-08-05",
+      "updatedAt": "2026-08-10T11:40:46.310Z"
+    }
+  ],
+  "monthSnapshots": [
+    {
+      "id": "ms_1786356509025_1tlmz",
+      "yearMonth": "2026-08",
+      "projectId": "p1",
+      "projectName": "AGA官号",
+      "groupName": "A组",
+      "receivable": 1000,
+      "received": 1000,
+      "unpaid": 0,
+      "paymentDate": "每月5日",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_vh1x7",
+      "yearMonth": "2026-08",
+      "projectId": "p1b",
+      "projectName": "AGA胡总号",
+      "groupName": "A组",
+      "receivable": 5000,
+      "received": 5000,
+      "unpaid": 0,
+      "paymentDate": "每月5日",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_5mkk9",
+      "yearMonth": "2026-08",
+      "projectId": "p3",
+      "projectName": "拾景园官号",
+      "groupName": "A组",
+      "receivable": 2400,
+      "received": 2400,
+      "unpaid": 0,
+      "paymentDate": "每月20日",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_996al",
+      "yearMonth": "2026-08",
+      "projectId": "p3b",
+      "projectName": "拾景园人设号",
+      "groupName": "A组",
+      "receivable": 1600,
+      "received": 0,
+      "unpaid": 1600,
+      "paymentDate": "每月20日",
+      "finalized": false,
+      "notes": "人设号未收"
+    },
+    {
+      "id": "ms_1786356509025_trbhh",
+      "yearMonth": "2026-08",
+      "projectId": "p4",
+      "projectName": "领禹一人多角",
+      "groupName": "A组",
+      "receivable": 1500,
+      "received": 1500,
+      "unpaid": 0,
+      "paymentDate": "每月12日",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_i1oy0",
+      "yearMonth": "2026-08",
+      "projectId": "p8",
+      "projectName": "鑫盛租车",
+      "groupName": "B组",
+      "receivable": 4000,
+      "received": 2000,
+      "unpaid": 2000,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": "部分收"
+    },
+    {
+      "id": "ms_1786356509025_3e2dk",
+      "yearMonth": "2026-08",
+      "projectId": "p8b",
+      "projectName": "鑫盛贴膜汽修",
+      "groupName": "B组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": "暂停0元"
+    },
+    {
+      "id": "ms_1786356509025_r6hz4",
+      "yearMonth": "2026-08",
+      "projectId": "p9",
+      "projectName": "华筑自建房",
+      "groupName": "B组",
+      "receivable": 6000,
+      "received": 6000,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_hh332",
+      "yearMonth": "2026-08",
+      "projectId": "p10",
+      "projectName": "桥通五洲",
+      "groupName": "B组",
+      "receivable": 5000,
+      "received": 0,
+      "unpaid": 5000,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": "完全未收"
+    },
+    {
+      "id": "ms_1786356509025_mjl9j",
+      "yearMonth": "2026-08",
+      "projectId": "p11",
+      "projectName": "炒甘花露",
+      "groupName": "B组",
+      "receivable": 3500,
+      "received": 3500,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_9nxq3",
+      "yearMonth": "2026-08",
+      "projectId": "p13",
+      "projectName": "瀚林数码",
+      "groupName": "C组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": "暂停0元"
+    },
+    {
+      "id": "ms_1786356509025_zzxsh",
+      "yearMonth": "2026-08",
+      "projectId": "p14",
+      "projectName": "五通桥中医院",
+      "groupName": "C组",
+      "receivable": 2000,
+      "received": 2000,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_7da0z",
+      "yearMonth": "2026-08",
+      "projectId": "p15",
+      "projectName": "太菲教育",
+      "groupName": "C组",
+      "receivable": 3000,
+      "received": 3000,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_0wduu",
+      "yearMonth": "2026-08",
+      "projectId": "p16",
+      "projectName": "莳一面馆",
+      "groupName": "C组",
+      "receivable": 4500,
+      "received": 4500,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": ""
+    },
+    {
+      "id": "ms_1786356509025_tp4bo",
+      "yearMonth": "2026-08",
+      "projectId": "p20",
+      "projectName": "艾美花园饭店",
+      "groupName": "C组",
+      "receivable": 4000,
+      "received": 2000,
+      "unpaid": 2000,
+      "paymentDate": "根据情况而定",
+      "finalized": false,
+      "notes": "部分收"
+    },
+    {
+      "id": "ms1",
+      "yearMonth": "2026-07",
+      "projectId": "p1",
+      "projectName": "AGA官号",
+      "groupName": "A组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "每月5日",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms2",
+      "yearMonth": "2026-07",
+      "projectId": "p1b",
+      "projectName": "AGA胡总号",
+      "groupName": "A组",
+      "receivable": 5000,
+      "received": 0,
+      "unpaid": 5000,
+      "paymentDate": "每月5日",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms3",
+      "yearMonth": "2026-07",
+      "projectId": "p3",
+      "projectName": "拾景园官号",
+      "groupName": "C组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "每月20日",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms4",
+      "yearMonth": "2026-07",
+      "projectId": "p3b",
+      "projectName": "拾景园人设号",
+      "groupName": "C组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "每月20日",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms5",
+      "yearMonth": "2026-07",
+      "projectId": "p4",
+      "projectName": "领禹一人多角",
+      "groupName": "A组",
+      "receivable": 1500,
+      "received": 0,
+      "unpaid": 1500,
+      "paymentDate": "每月12日",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms6",
+      "yearMonth": "2026-07",
+      "projectId": "p8",
+      "projectName": "鑫盛租车",
+      "groupName": "B组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms7",
+      "yearMonth": "2026-07",
+      "projectId": "p8b",
+      "projectName": "鑫盛贴膜汽修",
+      "groupName": "B组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms8",
+      "yearMonth": "2026-07",
+      "projectId": "p9",
+      "projectName": "华筑自建房",
+      "groupName": "B组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms9",
+      "yearMonth": "2026-07",
+      "projectId": "p10",
+      "projectName": "桥通五洲",
+      "groupName": "B组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms10",
+      "yearMonth": "2026-07",
+      "projectId": "p11",
+      "projectName": "炒甘花露",
+      "groupName": "B组",
+      "receivable": 3500,
+      "received": 3500,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms11",
+      "yearMonth": "2026-07",
+      "projectId": "p14",
+      "projectName": "五通桥中医院",
+      "groupName": "C组",
+      "receivable": 2000,
+      "received": 0,
+      "unpaid": 2000,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms12",
+      "yearMonth": "2026-07",
+      "projectId": "p15",
+      "projectName": "太菲教育",
+      "groupName": "C组",
+      "receivable": 3000,
+      "received": 0,
+      "unpaid": 3000,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms13",
+      "yearMonth": "2026-07",
+      "projectId": "p16",
+      "projectName": "莳一面馆",
+      "groupName": "C组",
+      "receivable": 4500,
+      "received": 4500,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    },
+    {
+      "id": "ms14",
+      "yearMonth": "2026-07",
+      "projectId": "p20",
+      "projectName": "艾美花园饭店",
+      "groupName": "C组",
+      "receivable": 0,
+      "received": 0,
+      "unpaid": 0,
+      "paymentDate": "根据情况而定",
+      "finalized": true,
+      "notes": ""
+    }
+  ],
+  "staffSalaries": {
+    "s1": 4000,
+    "s5": 3500,
+    "s6": 2500,
+    "s7": 3500,
+    "s4": 3500,
+    "s3": 1000,
+    "s2": 3900,
+    "s9": 4800,
+    "s8": 4300,
+    "s10": 1000
+  }
+}
