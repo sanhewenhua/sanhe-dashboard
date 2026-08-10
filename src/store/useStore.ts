@@ -314,7 +314,20 @@ export const useStore = create<AppState>()(
         })),
 
       addIssue: (issue) =>
-        set((s) => ({ issues: [{ ...issue, id: genId('i') }, ...s.issues] })),
+        set((s) => {
+          const newIssue = { ...issue, id: genId('i') }
+          const next: Partial<AppState> = { issues: [newIssue, ...s.issues] }
+          // 问题类型为"暂停"时，自动同步项目状态为暂停
+          if (issue.type === '暂停') {
+            const now = new Date().toISOString()
+            next.projects = s.projects.map((p) =>
+              p.id === issue.projectId && p.status !== '暂停'
+                ? { ...p, status: '暂停', updatedAt: now }
+                : p
+            )
+          }
+          return next
+        }),
       updateIssue: (id, updates) =>
         set((s) => ({ issues: s.issues.map((x) => (x.id === id ? { ...x, ...updates } : x)) })),
       deleteIssue: (id) =>
@@ -506,6 +519,22 @@ export const useStore = create<AppState>()(
             ...s,
             roles: Array.isArray(s.roles) ? s.roles : [],
           }))
+        }
+        // 修复：有未解决的"暂停"问题的项目，状态自动同步为暂停
+        if (Array.isArray(state.issues) && Array.isArray(state.projects)) {
+          const pausedProjectIds = new Set(
+            state.issues
+              .filter((i) => i.type === '暂停' && i.status !== '已解决')
+              .map((i) => i.projectId)
+          )
+          if (pausedProjectIds.size > 0) {
+            const now = new Date().toISOString()
+            state.projects = state.projects.map((p) =>
+              pausedProjectIds.has(p.id) && p.status !== '暂停'
+                ? { ...p, status: '暂停', updatedAt: now }
+                : p
+            )
+          }
         }
       },
     }
