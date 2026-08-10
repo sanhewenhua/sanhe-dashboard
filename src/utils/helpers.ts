@@ -151,9 +151,9 @@ export function calcStaffWorkload(
       const workloadRoles = roles.filter((r) => r !== '组长')
       if (workloadRoles.length === 0) continue
 
-      // 计算该项目本月已完成条数（所有账号合计，排除暂停账号）
+      // 计算该项目本月已完成条数（所有账号合计，暂停项目也计入工作量）
       const activeAccountIds = safeAccounts
-        .filter((a) => a && a.projectId === p.id && a.status !== '暂停')
+        .filter((a) => a && a.projectId === p.id)
         .map((a) => a.id)
       const projectMonthRecords = safeRecords
         .filter((r) => r && r.projectId === p.id && r.yearMonth === month && activeAccountIds.includes(r.accountId))
@@ -286,9 +286,9 @@ export function calcStaffEfficiency(
       const numRoles = Object.entries(roleCountMap).filter(([, count]) => count > 0).length
       if (numRoles === 0) continue
 
-      // 计算该项目本月完成数据
+      // 计算该项目本月完成数据（暂停项目也计入人效）
       const activeAccountIds = safeAccounts
-        .filter((a) => a && a.projectId === p.id && a.status !== '暂停')
+        .filter((a) => a && a.projectId === p.id)
         .map((a) => a.id)
       const projectMonthRecords = safeRecords
         .filter((r) => r && r.projectId === p.id && r.yearMonth === month && activeAccountIds.includes(r.accountId))
