@@ -138,8 +138,8 @@ export default function ProjectOverview() {
       onClick={() => navigate(`/project/${p.id}`)}
       style={{
         marginBottom: 8,
-        borderLeft: `4px solid ${isOwnGroup ? theme.darkBorder : theme.border}`,
-        background: isOwnGroup ? theme.darkBg : theme.bg,
+        borderLeft: `4px solid ${isOwnGroup ? theme.darkBorder : '#d9d9d9'}`,
+        background: isOwnGroup ? theme.darkBg : '#fafafa',
         boxShadow: isOwnGroup ? `0 1px 6px ${theme.border}40` : undefined,
       }}
       styles={{ body: { padding: 10 } }}
@@ -229,18 +229,17 @@ export default function ProjectOverview() {
             <Col xs={8} sm={groups.length > 4 ? 4 : 6} key={g.id}>
               <Card size="small" style={{
                 textAlign: 'center',
-                borderTop: `${isOwnGroup ? 5 : 3}px solid ${isOwnGroup ? theme.darkBorder : theme.border}`,
-                background: isOwnGroup ? theme.darkBg : undefined,
+                borderTop: `${isOwnGroup ? 5 : 3}px solid ${isOwnGroup ? theme.darkBorder : '#d9d9d9'}`,
+                background: isOwnGroup ? theme.darkBg : '#fafafa',
                 boxShadow: isOwnGroup ? `0 0 16px ${theme.border}40` : undefined,
-                opacity: isOwnGroup ? 1 : 0.5,
-                transform: isOwnGroup ? 'scale(1.05)' : 'scale(0.98)',
+                transform: isOwnGroup ? 'scale(1.05)' : undefined,
                 transition: 'all 0.3s ease',
                 zIndex: isOwnGroup ? 1 : 0,
               }}>
                 <div style={{
                   fontSize: 28,
                   fontWeight: 800,
-                  color: isOwnGroup ? theme.darkBorder : theme.border,
+                  color: isOwnGroup ? theme.darkBorder : '#595959',
                 }}>{gAccountCount}</div>
                 <div style={{ fontSize: 12, color: '#8c8c8c' }}>
                   {g.name}
@@ -277,8 +276,7 @@ export default function ProjectOverview() {
           return (
             <Col xs={24} md={colSpan} key={g.id} style={{
               ...(groups.length > 4 ? { minWidth: 300 } : {}),
-              opacity: isOwnGroup ? 1 : 0.5,
-              transform: isOwnGroup ? 'scale(1.02)' : 'scale(0.98)',
+              transform: isOwnGroup ? 'scale(1.02)' : undefined,
               transition: 'all 0.3s ease',
             }}>
               <Card

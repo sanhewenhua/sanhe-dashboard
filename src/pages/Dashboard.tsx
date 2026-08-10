@@ -503,12 +503,11 @@ export default function Dashboard() {
             return (
               <Col xs={24} sm={8} key={g.id}>
                 <div style={{
-                  background: colors.light,
+                  background: isOwnGroup ? colors.light : '#f5f5f5',
                   borderRadius: 10,
                   padding: 12,
-                  borderLeft: isOwnGroup ? `6px solid ${colors.border}` : `4px solid ${colors.border}`,
+                  borderLeft: isOwnGroup ? `6px solid ${colors.border}` : `4px solid #d9d9d9`,
                   boxShadow: isOwnGroup ? `0 0 12px ${colors.border}30` : undefined,
-                  opacity: isOwnGroup ? 1 : 0.75,
                   transition: 'all 0.2s',
                   cursor: 'pointer',
                 }}
@@ -520,9 +519,9 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{
                         width: 10, height: 10, borderRadius: '50%',
-                        background: colors.border, display: 'inline-block',
+                        background: isOwnGroup ? colors.border : '#bfbfbf', display: 'inline-block',
                       }} />
-                      <strong style={{ fontSize: 15, color: colors.text }}>{g.name}</strong>
+                      <strong style={{ fontSize: 15, color: isOwnGroup ? colors.text : '#595959' }}>{g.name}</strong>
                       {isOwnGroup && (
                         <Tag color="blue" style={{ fontSize: 10, margin: 0, padding: '0 4px', lineHeight: '16px' }}>
                           我的组
@@ -534,7 +533,7 @@ export default function Dashboard() {
 
                   {/* 完成数 大字 */}
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
-                    <span style={{ fontSize: 28, fontWeight: 700, color: colors.text }}>{g.gCompleted}</span>
+                    <span style={{ fontSize: 28, fontWeight: 700, color: isOwnGroup ? colors.text : '#262626' }}>{g.gCompleted}</span>
                     <span style={{ fontSize: 14, color: '#8c8c8c' }}>/ {g.gPlanned} 条</span>
                     {g.gHasIssues > 0 && (
                       <Tag color="red" style={{ fontSize: 10, marginLeft: 'auto', marginInlineEnd: 0 }}>
@@ -567,9 +566,9 @@ export default function Dashboard() {
                   {/* 完成率标签 */}
                   <div style={{ marginTop: 6 }}>
                     <Tag style={{
-                      background: colors.bg,
-                      border: `1px solid ${colors.border}40`,
-                      color: colors.text,
+                      background: isOwnGroup ? colors.bg : '#fafafa',
+                      border: `1px solid ${isOwnGroup ? colors.border+'40' : '#d9d9d9'}`,
+                      color: isOwnGroup ? colors.text : '#8c8c8c',
                       fontSize: 12, fontWeight: 600,
                     }}>
                       完成率 {g.gRate.toFixed(1)}%
@@ -596,12 +595,12 @@ export default function Dashboard() {
               const widthPct = (g.gProjectCount / maxCount) * 100
               const isOwnGroup = currentGroup && g.id === currentGroup
               return (
-                <div key={g.id} style={{ flex: 1, minWidth: 120, opacity: isOwnGroup ? 1 : 0.75, transition: 'opacity 0.2s' }}>
+                <div key={g.id} style={{ flex: 1, minWidth: 120, transition: 'opacity 0.2s' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: isOwnGroup ? 700 : 600, color: colors.text }}>
+                    <span style={{ fontSize: 12, fontWeight: isOwnGroup ? 700 : 600, color: isOwnGroup ? colors.text : '#595959' }}>
                       {g.name}{isOwnGroup ? <span style={{ fontSize: 10, color: colors.border, marginLeft: 4 }}>●</span> : ''}
                     </span>
-                    <span style={{ fontSize: 16, fontWeight: 700, color: colors.text }}>{g.gProjectCount}<span style={{ fontSize: 11, color: '#8c8c8c' }}>个</span></span>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: isOwnGroup ? colors.text : '#262626' }}>{g.gProjectCount}<span style={{ fontSize: 11, color: '#8c8c8c' }}>个</span></span>
                   </div>
                   <div style={{ height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ width: `${widthPct}%`, height: '100%', background: colors.border, borderRadius: 4, transition: 'width 0.3s' }} />
@@ -626,9 +625,9 @@ export default function Dashboard() {
               const barWidth = (g.gReceivable / maxFee) * 100
               const isOwnGroup = currentGroup && g.id === currentGroup
               return (
-                <div key={g.id} style={{ flex: 1, minWidth: 140, opacity: isOwnGroup ? 1 : 0.75, transition: 'opacity 0.2s' }}>
+                <div key={g.id} style={{ flex: 1, minWidth: 140, transition: 'opacity 0.2s' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: isOwnGroup ? 700 : 600, color: colors.text }}>
+                    <span style={{ fontSize: 12, fontWeight: isOwnGroup ? 700 : 600, color: isOwnGroup ? colors.text : '#595959' }}>
                       {g.name}{isOwnGroup ? <span style={{ fontSize: 10, color: colors.border, marginLeft: 4 }}>●</span> : ''}
                     </span>
                     <span style={{ fontSize: 12, color: '#595959' }}>¥{g.gReceivable.toLocaleString()}</span>
@@ -664,14 +663,13 @@ export default function Dashboard() {
               return (
                 <div key={g.id} style={{
                   flex: 1, minWidth: 120,
-                  background: colors.light, borderRadius: 8, padding: '8px 12px',
-                  borderLeft: isOwnGroup ? `5px solid ${colors.border}` : `3px solid ${colors.border}`,
-                  opacity: isOwnGroup ? 1 : 0.75,
+                  background: isOwnGroup ? colors.light : '#f5f5f5', borderRadius: 8, padding: '8px 12px',
+                  borderLeft: isOwnGroup ? `5px solid ${colors.border}` : `3px solid #d9d9d9`,
                   boxShadow: isOwnGroup ? `0 0 10px ${colors.border}20` : undefined,
                   transition: 'all 0.2s',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: colors.text }}>{g.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: isOwnGroup ? colors.text : '#595959' }}>{g.name}</span>
                     <span style={{
                       fontSize: 18, fontWeight: 700,
                       color: g.gRenewalRate >= 80 ? '#52c41a' : g.gRenewalRate >= 50 ? '#fa8c16' : '#f5222d',
