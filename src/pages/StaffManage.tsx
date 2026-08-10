@@ -71,6 +71,7 @@ export default function StaffManage() {
   const handleAdd = () => {
     setEditingId(null)
     form.resetFields()
+    form.setFieldsValue({ status: '在职' })
     setModalOpen(true)
   }
 
@@ -89,7 +90,7 @@ export default function StaffManage() {
         updateStaff(editingId, values)
         message.success('已更新')
       } else {
-        addStaff({ ...values, status: '在职' })
+        addStaff(values)
         message.success('已添加')
       }
       setModalOpen(false)
@@ -713,8 +714,11 @@ export default function StaffManage() {
               },
               { title: '所属组', dataIndex: 'groupId', width: 80, render: (g: string) => groupName(g) },
               {
-                title: '状态', dataIndex: 'status', width: 70,
-                render: (s: string) => <Tag color={s === '在职' ? 'green' : 'default'}>{s}</Tag>,
+                title: '状态', dataIndex: 'status', width: 80,
+                render: (s: string) => {
+                  const colorMap: Record<string, string> = { '在职': 'green', '待转正': 'blue', '学徒': 'orange', '离职': 'default' }
+                  return <Tag color={colorMap[s] || 'default'}>{s}</Tag>
+                },
               },
               {
                 title: '操作', width: 100,
@@ -750,6 +754,14 @@ export default function StaffManage() {
             <Select options={[
               ...safeGroups.map((g) => ({ label: g.name, value: g.id })),
               { label: '未分组', value: 'none' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="status" label="员工状态" rules={[{ required: true, message: '请选择状态' }]}>
+            <Select options={[
+              { label: '在职', value: '在职' },
+              { label: '待转正', value: '待转正' },
+              { label: '学徒', value: '学徒' },
+              { label: '离职', value: '离职' },
             ]} />
           </Form.Item>
         </Form>

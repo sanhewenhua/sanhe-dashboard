@@ -7,7 +7,7 @@ export interface Staff {
   name: string
   roles: StaffRole[]
   groupId: string // A/B/C/none
-  status: '在职' | '离职'
+  status: '在职' | '待转正' | '学徒' | '离职'
 }
 
 // ===== 组 =====
