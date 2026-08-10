@@ -807,6 +807,7 @@ export default function Dashboard() {
             <Tag color="blue">自动计算</Tag>
           </Space>
         }
+        destroyOnClose
         open={snapshotModalOpen}
         onCancel={() => setSnapshotModalOpen(false)}
         width={isMobile ? '95%' : 900}
@@ -920,6 +921,7 @@ export default function Dashboard() {
             <Tag color="green">已收 ¥{data.lastMonthReceived.toLocaleString()}</Tag>
           </Space>
         }
+        destroyOnClose
         open={paidDetailOpen}
         onCancel={() => setPaidDetailOpen(false)}
         width={isMobile ? '95%' : 900}
@@ -1131,6 +1133,7 @@ export default function Dashboard() {
       {/* ===== 本月已收明细 Modal ===== */}
       <Modal
         title={<Space><DollarOutlined style={{ color: '#13c2c2' }} />{selectedMonth} 已收款明细<Tag color="green">¥{data.monthReceived.toLocaleString()}</Tag></Space>}
+        destroyOnClose
         open={monthReceivedOpen}
         onCancel={() => setMonthReceivedOpen(false)}
         width={isMobile ? '95%' : 800}
@@ -1163,6 +1166,7 @@ export default function Dashboard() {
       {/* ===== 本月待收明细 Modal ===== */}
       <Modal
         title={<Space><WarningOutlined style={{ color: '#f5222d' }} />{selectedMonth} 待收款明细<Tag color="red">{data.unpaidList.length}个项目</Tag></Space>}
+        destroyOnClose
         open={unpaidDetailOpen}
         onCancel={() => setUnpaidDetailOpen(false)}
         width={isMobile ? '95%' : 800}
@@ -1196,6 +1200,7 @@ export default function Dashboard() {
       {/* ===== 有问题项目明细 Modal ===== */}
       <Modal
         title={<Space><AlertOutlined style={{ color: '#f5222d' }} />有问题项目明细<Tag color="red">{data.issueCount}个</Tag></Space>}
+        destroyOnClose
         open={monthIssueOpen}
         onCancel={() => setMonthIssueOpen(false)}
         width={isMobile ? '95%' : 800}
