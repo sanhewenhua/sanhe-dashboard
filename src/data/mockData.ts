@@ -1,4 +1,4 @@
-import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot } from '../types'
+import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot, LegacyReceivable } from '../types'
 
 const now = new Date().toISOString()
 const currentMonth = new Date().toISOString().slice(0, 7) // '2026-08'
@@ -363,3 +363,12 @@ export const initialLeads: Lead[] = [
     stage: '初次接触', stageNote: '初次接触，了解需求中',
     nextFollowUpDate: '', createdAt: '2026-08-05', updatedAt: new Date().toISOString(),
   },]
+
+// ===== 历史未收款（手写维护） =====
+export const initialLegacyReceivables: LegacyReceivable[] = [
+  { id: 'lr1', projectName: '青江悦城', contactName: '高总', personInCharge: '程杰', amount: 5000, acceptanceDate: '2026-01-31' },
+  { id: 'lr2', projectName: '老厂烧烤', contactName: '彭总', personInCharge: '程杰', amount: 3300, acceptanceDate: '2026-05-01' },
+  { id: 'lr3', projectName: '筑城栖悦', contactName: '何阳锐', personInCharge: '程杰', amount: 6348, acceptanceDate: '2026-07-02' },
+  { id: 'lr4', projectName: '艺途旅行', contactName: '蔡师', personInCharge: '周云飞', amount: 9000, acceptanceDate: '2026-05-01' },
+  { id: 'lr5', projectName: '夹江市民中心', contactName: '干总', personInCharge: '周云飞', amount: 0, acceptanceDate: '2025-10-31' },
+]

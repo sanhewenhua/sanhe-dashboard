@@ -1,10 +1,11 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Card, Row, Col, Progress, Tag, Table, Button, Tooltip, Modal, Select, Space } from 'antd'
+import { Card, Row, Col, Progress, Tag, Table, Button, Tooltip, Modal, Select, Space, Input, Popconfirm, Form, DatePicker, InputNumber } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import {
   DownloadOutlined, AlertOutlined, VideoCameraOutlined,
   DollarOutlined, CheckCircleOutlined, ProjectOutlined,
   WarningOutlined, RiseOutlined, FallOutlined, EditOutlined,
+  HistoryOutlined, PlusOutlined, DeleteOutlined,
 } from '@ant-design/icons'
 import { useStore } from '../store/useStore'
 import { calcProjectMonthData, formatMoney, getRecentMonths } from '../utils/helpers'
@@ -53,6 +54,7 @@ export default function Dashboard() {
   const {
     projects, accounts, monthlyRecords, issues, staff, groups, selectedMonth,
     ensureCarryOver, currentGroup,
+    legacyReceivables, addLegacyReceivable, updateLegacyReceivable, deleteLegacyReceivable,
   } = useStore()
   const navigate = useNavigate()
 
@@ -67,6 +69,9 @@ export default function Dashboard() {
   const [paidDetailOpen, setPaidDetailOpen] = useState(false)
   const [monthReceivedOpen, setMonthReceivedOpen] = useState(false)
   const [monthIssueOpen, setMonthIssueOpen] = useState(false)
+  const [legacyModalOpen, setLegacyModalOpen] = useState(false)
+  const [legacyEditingId, setLegacyEditingId] = useState<string | null>(null)
+  const [legacyForm] = Form.useForm()
   const isMobile = window.innerWidth <= 768
 
   const lastMonth = useMemo(() => {
@@ -797,6 +802,111 @@ export default function Dashboard() {
           />
         </Card>
       )}
+
+      {/* ===== 历史未收款清单 ===== */}
+      {(() => {
+        const totalAmount = legacyReceivables.reduce((sum, r) => sum + (r.amount || 0), 0)
+        const handleAddLegacy = () => {
+          setLegacyEditingId(null)
+          legacyForm.resetFields()
+          setLegacyModalOpen(true)
+        }
+        const handleEditLegacy = (item: any) => {
+          setLegacyEditingId(item.id)
+          legacyForm.setFieldsValue(item)
+          setLegacyModalOpen(true)
+        }
+        const handleSaveLegacy = () => {
+          legacyForm.validateFields().then((values) => {
+            if (legacyEditingId) {
+              updateLegacyReceivable(legacyEditingId, values)
+            } else {
+              addLegacyReceivable(values)
+            }
+            setLegacyModalOpen(false)
+          })
+        }
+        return (
+          <>
+            <Card
+              title={<Space><HistoryOutlined />历史未收款清单<Tag>{legacyReceivables.length}条</Tag></Space>}
+              extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={handleAddLegacy}>新增</Button>}
+              size="small" style={{ marginTop: 16, borderRadius: 10 }}
+            >
+              <Table
+                dataSource={legacyReceivables}
+                rowKey="id"
+                size="small"
+                pagination={false}
+                columns={[
+                  { title: '项目', dataIndex: 'projectName', width: 130, render: (n: string) => <span style={{ fontWeight: 700, fontSize: 14 }}>{n}</span> },
+                  { title: '对接人', dataIndex: 'contactName', width: 80 },
+                  { title: '负责人', dataIndex: 'personInCharge', width: 80 },
+                  {
+                    title: '费用', dataIndex: 'amount', width: 110,
+                    render: (v: number) => v === 0
+                      ? <Tag>待定</Tag>
+                      : <span style={{ color: '#f5222d', fontWeight: 700 }}>{formatMoney(v)}</span>,
+                  },
+                  { title: '验收时间', dataIndex: 'acceptanceDate', width: 110 },
+                  {
+                    title: '操作', width: 100,
+                    render: (_: any, record: any) => (
+                      <Space size={4}>
+                        <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEditLegacy(record)}>编辑</Button>
+                        <Popconfirm title="确定删除？" onConfirm={() => deleteLegacyReceivable(record.id)}>
+                          <Button type="link" size="small" danger icon={<DeleteOutlined />}>删除</Button>
+                        </Popconfirm>
+                      </Space>
+                    ),
+                  },
+                ]}
+                summary={() => (
+                  <Table.Summary.Row style={{ background: '#fffbe6' }}>
+                    <Table.Summary.Cell index={0} colSpan={3}>
+                      <span style={{ fontWeight: 700, color: '#fa8c16', fontSize: 14 }}>历史未收款合计</span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={3}>
+                      <span style={{ color: '#f5222d', fontWeight: 700, fontSize: 16 }}>{formatMoney(totalAmount)}</span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={4} colSpan={2} />
+                  </Table.Summary.Row>
+                )}
+              />
+              {legacyReceivables.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#8c8c8c', padding: 16 }}>暂无历史未收款</div>
+              )}
+            </Card>
+
+            {/* 新增/编辑 Modal */}
+            <Modal
+              title={legacyEditingId ? '编辑历史未收款' : '新增历史未收款'}
+              open={legacyModalOpen}
+              onOk={handleSaveLegacy}
+              onCancel={() => setLegacyModalOpen(false)}
+              destroyOnClose
+            >
+              <Form form={legacyForm} layout="vertical" style={{ marginTop: 16 }}>
+                <Form.Item name="projectName" label="项目名称" rules={[{ required: true }]}>
+                  <Input placeholder="如：青江悦城" />
+                </Form.Item>
+                <Form.Item name="contactName" label="对接人" rules={[{ required: true }]}>
+                  <Input placeholder="如：高总" />
+                </Form.Item>
+                <Form.Item name="personInCharge" label="负责人" rules={[{ required: true }]}>
+                  <Input placeholder="如：程杰" />
+                </Form.Item>
+                <Form.Item name="amount" label="费用">
+                  <InputNumber style={{ width: '100%' }} min={0} precision={0} placeholder="填0表示待定" />
+                </Form.Item>
+                <Form.Item name="acceptanceDate" label="验收时间" rules={[{ required: true }]}>
+                  <Input placeholder="如：2026-01-31" />
+                </Form.Item>
+              </Form>
+            </Modal>
+          </>
+        )
+      })()}
 
       {/* ===== 月度收款明细 Modal ===== */}
       <Modal

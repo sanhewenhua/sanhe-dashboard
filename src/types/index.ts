@@ -129,7 +129,15 @@ export interface MonthPaymentSnapshot {
   notes?: string             // 备注
 }
 
-// ===== 计算辅助类型 =====
+// ===== 历史未收款（手写维护） =====
+export interface LegacyReceivable {
+  id: string
+  projectName: string
+  contactName: string
+  personInCharge: string // 负责人
+  amount: number // 费用，0 表示待定
+  acceptanceDate: string // 验收时间
+}
 export interface ProjectWithDetails extends Project {
   accounts: Account[]
   currentMonthRecords: MonthlyRecord[]

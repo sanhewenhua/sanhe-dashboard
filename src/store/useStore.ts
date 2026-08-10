@@ -1,15 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot } from '../types'
+import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot, LegacyReceivable } from '../types'
 import {
   initialStaff, initialGroups, initialProjects, initialAccounts,
   initialMonthlyRecords, initialLastMonthRecords, initialIssues, initialLeads,
-  initialMonthSnapshots,
+  initialMonthSnapshots, initialLegacyReceivables,
 } from '../data/mockData'
 import { extractSyncData, pushToServer } from '../utils/syncManager'
 
 // 需要同步的业务数据字段
-const SYNC_KEYS = ['staff', 'groups', 'projects', 'accounts', 'monthlyRecords', 'issues', 'leads', 'monthSnapshots', 'staffSalaries'] as const
+const SYNC_KEYS = ['staff', 'groups', 'projects', 'accounts', 'monthlyRecords', 'issues', 'leads', 'monthSnapshots', 'staffSalaries', 'legacyReceivables'] as const
 
 /** 规范化数据：确保所有数组字段有效，防止 undefined 导致崩溃 */
 function normalizeProjects(projects: unknown): Project[] {
@@ -105,6 +105,7 @@ interface AppState {
   leads: Lead[]
   monthSnapshots: MonthPaymentSnapshot[]
   staffSalaries: Record<string, number> // 员工上月工资 { staffId: salary }
+  legacyReceivables: LegacyReceivable[]
 
   // 选中状态
   selectedMonth: string
@@ -124,6 +125,11 @@ interface AppState {
   updateStaff: (id: string, updates: Partial<Staff>) => void
   deleteStaff: (id: string) => void
   updateStaffSalary: (staffId: string, salary: number) => void
+
+  // 历史未收款操作
+  addLegacyReceivable: (item: Omit<LegacyReceivable, 'id'>) => void
+  updateLegacyReceivable: (id: string, updates: Partial<LegacyReceivable>) => void
+  deleteLegacyReceivable: (id: string) => void
 
   // 项目操作
   addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => string
@@ -191,6 +197,7 @@ export const useStore = create<AppState>()(
       leads: initialLeads,
       monthSnapshots: initialMonthSnapshots,
       staffSalaries: {},
+      legacyReceivables: initialLegacyReceivables,
 
       selectedMonth: currentMonth,
       setSelectedMonth: (month: string) => set({ selectedMonth: month }),
@@ -208,6 +215,13 @@ export const useStore = create<AppState>()(
         set((s) => ({
           staffSalaries: { ...s.staffSalaries, [staffId]: salary },
         })),
+
+      addLegacyReceivable: (item) =>
+        set((s) => ({ legacyReceivables: [...s.legacyReceivables, { ...item, id: genId('lr') }] })),
+      updateLegacyReceivable: (id, updates) =>
+        set((s) => ({ legacyReceivables: s.legacyReceivables.map((x) => (x.id === id ? { ...x, ...updates } : x)) })),
+      deleteLegacyReceivable: (id) =>
+        set((s) => ({ legacyReceivables: s.legacyReceivables.filter((x) => x.id !== id) })),
 
       addProject: (project) => {
         const id = genId('p')
@@ -487,6 +501,7 @@ export const useStore = create<AppState>()(
           leads: initialLeads,
           monthSnapshots: initialMonthSnapshots,
           staffSalaries: {},
+          legacyReceivables: initialLegacyReceivables,
         }),
 
       // ===== 实时同步 =====
@@ -511,6 +526,9 @@ export const useStore = create<AppState>()(
           staffSalaries: (data.staffSalaries && typeof data.staffSalaries === 'object' && !Array.isArray(data.staffSalaries))
             ? data.staffSalaries as Record<string, number>
             : {},
+          legacyReceivables: Array.isArray(data.legacyReceivables)
+            ? data.legacyReceivables as LegacyReceivable[]
+            : initialLegacyReceivables,
         })
       },
     }),
@@ -539,6 +557,7 @@ export const useStore = create<AppState>()(
         if (!Array.isArray(state.leads)) state.leads = initialLeads
         if (!Array.isArray(state.monthSnapshots)) state.monthSnapshots = initialMonthSnapshots
         if (!state.staffSalaries || typeof state.staffSalaries !== 'object') state.staffSalaries = {}
+        if (!Array.isArray(state.legacyReceivables)) state.legacyReceivables = initialLegacyReceivables
         // 规范化 staff：确保 roles 是数组
         if (Array.isArray(state.staff)) {
           state.staff = state.staff.map((s) => ({
