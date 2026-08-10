@@ -15,7 +15,7 @@ export default function GroupDetail() {
   const {
     projects, accounts, monthlyRecords, issues, staff, groups,
     selectedMonth, setSelectedMonth, updateMonthlyRecord, incrementCompleted,
-    addIssue, addProject, deleteProject,
+    addIssue, addProject, deleteProject, updateProject,
   } = useStore()
 
   const [editingRecord, setEditingRecord] = useState<string | null>(null)
@@ -78,6 +78,10 @@ export default function GroupDetail() {
       status: '未处理',
       occurredDate: new Date().toISOString().slice(0, 10),
     })
+    // 问题类型为"暂停"时，项目状态自动变为"暂停"
+    if (newIssue.type === '暂停') {
+      updateProject(projectId, { status: '暂停' })
+    }
     message.success('问题已记录')
     setIssueModalFor(null)
     setNewIssue({ type: '限流', desc: '' })

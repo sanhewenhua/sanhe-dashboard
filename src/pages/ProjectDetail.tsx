@@ -133,6 +133,10 @@ export default function ProjectDetail() {
         status: '未处理',
         occurredDate: new Date().toISOString().slice(0, 10),
       })
+      // 问题类型为"暂停"时，项目状态自动变为"暂停"
+      if (values.type === '暂停') {
+        updateProject(project.id, { status: '暂停' })
+      }
       message.success('问题已记录')
       issueForm.resetFields()
       setIssueModalOpen(false)
