@@ -66,6 +66,7 @@ export default function Dashboard() {
   const [snapshotModalOpen, setSnapshotModalOpen] = useState(false)
   const [snapshotMonth, setSnapshotMonth] = useState(selectedMonth)
   const [unpaidDetailOpen, setUnpaidDetailOpen] = useState(false)
+  const [lastMonthUnpaidDetailOpen, setLastMonthUnpaidDetailOpen] = useState(false)
   const [paidDetailOpen, setPaidDetailOpen] = useState(false)
   const [monthReceivedOpen, setMonthReceivedOpen] = useState(false)
   const [monthIssueOpen, setMonthIssueOpen] = useState(false)
@@ -186,6 +187,13 @@ export default function Dashboard() {
       return { ...p, unpaid: d.monthUnpaid, groupName: projGroup?.name || '' }
     }).filter((p) => p.unpaid > 0).sort((a, b) => b.unpaid - a.unpaid)
 
+    // 上月未收款清单
+    const lastMonthUnpaidList = activeProjects.map((p) => {
+      const d = calcProjectMonthData(p, accounts, monthlyRecords, issues, lastMonth)
+      const projGroup = groups.find((g) => g.id === p.groupId)
+      return { ...p, unpaid: d.monthUnpaid, groupName: projGroup?.name || '' }
+    }).filter((p) => p.unpaid > 0).sort((a, b) => b.unpaid - a.unpaid)
+
     // 本月已收项目明细
     const receivedList = activeProjects.map((p) => {
       const d = calcProjectMonthData(p, accounts, monthlyRecords, issues, selectedMonth)
@@ -218,7 +226,7 @@ export default function Dashboard() {
       activeProjectCount: activeProjects.length,
       activeAccountCount,
       issueCount: projectWithIssues.length,
-      groupStats, warnings, unpaidList, receivedList, issueProjects, trendData,
+      groupStats, warnings, unpaidList, lastMonthUnpaidList, receivedList, issueProjects, trendData,
     }
   }, [projects, accounts, monthlyRecords, issues, staff, groups, selectedMonth, lastMonth])
 
@@ -474,7 +482,7 @@ export default function Dashboard() {
                 textUnderlineOffset: 4,
               }}
               onClick={() => {
-                if (data.lastMonthUnpaid > 0) setUnpaidDetailOpen(true)
+                if (data.lastMonthUnpaid > 0) setLastMonthUnpaidDetailOpen(true)
               }}
             >
               ¥{data.lastMonthUnpaid.toLocaleString()}
@@ -492,7 +500,7 @@ export default function Dashboard() {
               border: '1px solid #ffccc7', fontSize: 12, color: '#cf1322',
               cursor: 'pointer',
             }}
-            onClick={() => setUnpaidDetailOpen(true)}
+            onClick={() => setLastMonthUnpaidDetailOpen(true)}
           >
             ⚠️ 上月仍有 ¥{data.lastMonthUnpaid.toLocaleString()}元 未收回，请尽快跟进收款 → 点击查看明细
           </div>
@@ -1271,6 +1279,40 @@ export default function Dashboard() {
             ]}
           />
         )}
+      </Modal>
+
+      {/* ===== 上月待收明细 Modal ===== */}
+      <Modal
+        title={<Space><WarningOutlined style={{ color: '#f5222d' }} />{lastMonth} 待收款明细<Tag color="red">{data.lastMonthUnpaidList.length}个项目</Tag></Space>}
+        destroyOnClose
+        open={lastMonthUnpaidDetailOpen}
+        onCancel={() => setLastMonthUnpaidDetailOpen(false)}
+        width={isMobile ? '95%' : 800}
+        footer={<Button onClick={() => setLastMonthUnpaidDetailOpen(false)}>关闭</Button>}
+      >
+        {data.lastMonthUnpaidList.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#52c41a', padding: 30, fontSize: 16 }}>上月款项已全部收齐</div>
+        ) : (
+          <Table
+            dataSource={data.lastMonthUnpaidList}
+            rowKey="id"
+            size="small"
+            pagination={false}
+            columns={[
+              { title: '组', dataIndex: 'groupName', width: 60, render: (g: string) => {
+                const idx = groups.findIndex((gr) => gr.name === g)
+                const c = idx >= 0 ? getGroupColor(g, idx) : null
+                return c ? <span style={{ display: 'inline-block', padding: '1px 8px', borderRadius: 4, background: c.bg, color: c.text, fontSize: 12, fontWeight: 600 }}>{g}</span> : g
+              }},
+              { title: '项目', dataIndex: 'name', width: 160, render: (n: string) => <span style={{ fontWeight: 700, fontSize: 14 }}>{n}</span> },
+              { title: '对接人', dataIndex: 'contactName', width: 80 },
+              { title: '待收金额', dataIndex: 'unpaid', render: (v: number) => <span style={{ color: '#f5222d', fontWeight: 700, fontSize: 15 }}>{formatMoney(v)}</span> },
+            ]}
+          />
+        )}
+        <div style={{ marginTop: 12, textAlign: 'right', color: '#8c8c8c', fontSize: 12 }}>
+          待收合计：<strong style={{ color: '#f5222d', fontSize: 15 }}>¥{data.lastMonthUnpaid.toLocaleString()}</strong>
+        </div>
       </Modal>
 
       {/* ===== 本月待收明细 Modal ===== */}
