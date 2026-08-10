@@ -47,7 +47,12 @@ export function calcProjectMonthData(
   // 不付的记录不计入应收/已收/未收
   const payableRecords = monthRecords.filter((r) => r.paymentStatus !== '不付')
   const monthPaymentAmount = payableRecords.reduce((sum, r) => sum + r.paymentAmount, 0)
-  const monthPaidAmount = payableRecords.reduce((sum, r) => sum + r.paidAmount, 0)
+  // 已收按应收全额算，部分收按实收算，未收按 0 算（与 Dashboard 的 paidByStatus 保持一致）
+  const monthPaidAmount = payableRecords.reduce((sum, r) => {
+    if (r.paymentStatus === '已收') return sum + r.paymentAmount
+    if (r.paymentStatus === '部分收') return sum + r.paidAmount
+    return sum
+  }, 0)
   const monthUnpaid = monthPaymentAmount - monthPaidAmount
   const projectIssues = safeIssues.filter((i) => i && i.projectId === project.id && i.status !== '已解决')
 
