@@ -187,8 +187,8 @@ export default function Dashboard() {
       return { ...p, unpaid: d.monthUnpaid, groupName: projGroup?.name || '' }
     }).filter((p) => p.unpaid > 0).sort((a, b) => b.unpaid - a.unpaid)
 
-    // 上月未收款清单
-    const lastMonthUnpaidList = activeProjects.map((p) => {
+    // 上月未收款清单（遍历所有项目，不仅进行中，历史未收也要展示）
+    const lastMonthUnpaidList = projects.map((p) => {
       const d = calcProjectMonthData(p, accounts, monthlyRecords, issues, lastMonth)
       const projGroup = groups.find((g) => g.id === p.groupId)
       return { ...p, unpaid: d.monthUnpaid, groupName: projGroup?.name || '' }
