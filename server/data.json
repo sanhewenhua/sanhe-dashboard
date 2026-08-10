@@ -1409,7 +1409,32 @@
       "paidAmount": 0
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "projectId": "p17",
+      "type": "其他",
+      "description": "最终沟通",
+      "status": "未处理",
+      "occurredDate": "2026-08-10",
+      "id": "i_1786363030261_3s7p3"
+    },
+    {
+      "projectId": "p4",
+      "type": "暂停",
+      "description": "等待开学",
+      "status": "未处理",
+      "occurredDate": "2026-08-10",
+      "id": "i_1786362994550_gzl5s"
+    },
+    {
+      "projectId": "p1",
+      "type": "暂停",
+      "description": "等待开业",
+      "status": "未处理",
+      "occurredDate": "2026-08-10",
+      "id": "i_1786362984530_hbsgr"
+    }
+  ],
   "leads": [
     {
       "name": "西昌矿泉水厂",

@@ -14,13 +14,13 @@ const stageStepIndex: Record<string, number> = {
 }
 
 // 各组配色（淡色背景 + 深色边框/标题）
-const groupTheme: Record<string, { border: string; bg: string; headerBg: string; dot: string }> = {
-  A: { border: '#1677ff', bg: '#f0f7ff', headerBg: '#e6f4ff', dot: '#1677ff' },
-  B: { border: '#52c41a', bg: '#f3faf0', headerBg: '#f6ffed', dot: '#52c41a' },
-  C: { border: '#722ed1', bg: '#f8f3ff', headerBg: '#f9f0ff', dot: '#722ed1' },
-  D: { border: '#fa8c16', bg: '#fffbf5', headerBg: '#fff7e6', dot: '#fa8c16' },
-  E: { border: '#eb2f96', bg: '#fff5fa', headerBg: '#fff0f6', dot: '#eb2f96' },
-  F: { border: '#13c2c2', bg: '#f0fffc', headerBg: '#e6fffb', dot: '#13c2c2' },
+const groupTheme: Record<string, { border: string; bg: string; headerBg: string; dot: string; darkBg: string; darkBorder: string }> = {
+  A: { border: '#1677ff', bg: '#f0f7ff', headerBg: '#e6f4ff', dot: '#1677ff', darkBg: '#d6e8ff', darkBorder: '#003eb3' },
+  B: { border: '#52c41a', bg: '#f3faf0', headerBg: '#f6ffed', dot: '#52c41a', darkBg: '#d9f7be', darkBorder: '#1d6b00' },
+  C: { border: '#722ed1', bg: '#f8f3ff', headerBg: '#f9f0ff', dot: '#722ed1', darkBg: '#efdbff', darkBorder: '#391085' },
+  D: { border: '#fa8c16', bg: '#fffbf5', headerBg: '#fff7e6', dot: '#fa8c16', darkBg: '#ffe7ba', darkBorder: '#8c3a00' },
+  E: { border: '#eb2f96', bg: '#fff5fa', headerBg: '#fff0f6', dot: '#eb2f96', darkBg: '#ffd6e7', darkBorder: '#8c0054' },
+  F: { border: '#13c2c2', bg: '#f0fffc', headerBg: '#e6fffb', dot: '#13c2c2', darkBg: '#b5f5ec', darkBorder: '#004d4d' },
 }
 const extraGroupColors = ['#fa541c', '#2f54eb', '#a0d911', '#fadb14', '#f5222d']
 function getGroupTheme(id: string, index: number) {
@@ -29,6 +29,8 @@ function getGroupTheme(id: string, index: number) {
     bg: `${extraGroupColors[index % extraGroupColors.length]}0a`,
     headerBg: `${extraGroupColors[index % extraGroupColors.length]}15`,
     dot: extraGroupColors[index % extraGroupColors.length],
+    darkBg: `${extraGroupColors[index % extraGroupColors.length]}30`,
+    darkBorder: extraGroupColors[index % extraGroupColors.length],
   }
 }
 
@@ -125,7 +127,7 @@ export default function ProjectOverview() {
   }
 
   // 渲染单个项目卡片（含多账号）
-  const renderProjectCard = (p: any, theme: typeof groupTheme.A) => (
+  const renderProjectCard = (p: any, theme: typeof groupTheme.A, isOwnGroup: boolean) => (
     <Card
       key={p.id}
       size="small"
@@ -133,8 +135,9 @@ export default function ProjectOverview() {
       onClick={() => navigate(`/project/${p.id}`)}
       style={{
         marginBottom: 8,
-        borderLeft: `4px solid ${theme.border}`,
-        background: theme.bg,
+        borderLeft: `4px solid ${isOwnGroup ? theme.darkBorder : theme.border}`,
+        background: isOwnGroup ? theme.darkBg : theme.bg,
+        boxShadow: isOwnGroup ? `0 1px 6px ${theme.border}40` : undefined,
       }}
       styles={{ body: { padding: 10 } }}
     >
@@ -202,20 +205,27 @@ export default function ProjectOverview() {
             const proj = activeProjects.find((p) => p.id === a.projectId)
             return proj?.groupId === g.id && a.status !== '暂停'
           }).length
-          const isOwnGroup = currentGroup && g.id === currentGroup
+          const isOwnGroup = !!(currentGroup && g.id === currentGroup)
           return (
             <Col xs={8} sm={groups.length > 4 ? 4 : 6} key={g.id}>
               <Card size="small" style={{
                 textAlign: 'center',
-                borderTop: `${isOwnGroup ? 5 : 3}px solid ${theme.border}`,
-                boxShadow: isOwnGroup ? `0 0 10px ${theme.border}30` : undefined,
-                opacity: isOwnGroup ? 1 : 0.75,
-                transition: 'all 0.2s',
+                borderTop: `${isOwnGroup ? 5 : 3}px solid ${isOwnGroup ? theme.darkBorder : theme.border}`,
+                background: isOwnGroup ? theme.darkBg : undefined,
+                boxShadow: isOwnGroup ? `0 0 16px ${theme.border}40` : undefined,
+                opacity: isOwnGroup ? 1 : 0.5,
+                transform: isOwnGroup ? 'scale(1.05)' : 'scale(0.98)',
+                transition: 'all 0.3s ease',
+                zIndex: isOwnGroup ? 1 : 0,
               }}>
-                <div style={{ fontSize: 24, fontWeight: 700, color: theme.border }}>{gAccountCount}</div>
+                <div style={{
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: isOwnGroup ? theme.darkBorder : theme.border,
+                }}>{gAccountCount}</div>
                 <div style={{ fontSize: 12, color: '#8c8c8c' }}>
                   {g.name}
-                  {isOwnGroup && <span style={{ color: theme.border, marginLeft: 2, fontWeight: 600 }}> · 我的</span>}
+                  {isOwnGroup && <span style={{ color: theme.darkBorder, marginLeft: 2, fontWeight: 700 }}> · 我的</span>}
                 </div>
               </Card>
             </Col>
@@ -244,21 +254,37 @@ export default function ProjectOverview() {
         {groupProjects.map((g, gi) => {
           const theme = getGroupTheme(g.id, gi)
           const colSpan = groups.length <= 3 ? 8 : groups.length === 4 ? 6 : 6
-          const isOwnGroup = currentGroup && g.id === currentGroup
+          const isOwnGroup = !!(currentGroup && g.id === currentGroup)
           return (
-            <Col xs={24} md={colSpan} key={g.id} style={{ ...(groups.length > 4 ? { minWidth: 300 } : {}), opacity: isOwnGroup ? 1 : 0.75, transition: 'opacity 0.2s' }}>
+            <Col xs={24} md={colSpan} key={g.id} style={{
+              ...(groups.length > 4 ? { minWidth: 300 } : {}),
+              opacity: isOwnGroup ? 1 : 0.5,
+              transform: isOwnGroup ? 'scale(1.02)' : 'scale(0.98)',
+              transition: 'all 0.3s ease',
+            }}>
               <Card
                 size="small"
                 style={{
-                  height: '100%', background: theme.headerBg, borderColor: theme.border,
-                  borderWidth: isOwnGroup ? 2 : 1,
-                  boxShadow: isOwnGroup ? `0 0 14px ${theme.border}30` : undefined,
+                  height: '100%',
+                  background: isOwnGroup ? theme.darkBg : '#f5f5f5',
+                  borderColor: isOwnGroup ? theme.darkBorder : '#d9d9d9',
+                  borderWidth: isOwnGroup ? 3 : 1,
+                  boxShadow: isOwnGroup ? `0 0 20px ${theme.border}50` : undefined,
                 }}
                 styles={{ body: { padding: 10 } }}
                 title={
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: theme.dot }} />
-                    <span style={{ color: theme.border, fontWeight: 700 }}>{g.name}</span>
+                    <span style={{
+                      display: 'inline-block',
+                      width: isOwnGroup ? 12 : 8, height: isOwnGroup ? 12 : 8,
+                      borderRadius: '50%', background: theme.dot,
+                      boxShadow: isOwnGroup ? `0 0 6px ${theme.border}` : undefined,
+                    }} />
+                    <span style={{
+                      color: isOwnGroup ? theme.darkBorder : '#8c8c8c',
+                      fontWeight: isOwnGroup ? 800 : 600,
+                      fontSize: isOwnGroup ? 16 : 14,
+                    }}>{g.name}</span>
                     <span style={{ fontSize: 12, color: '#8c8c8c', fontWeight: 400 }}>({g.projects.length}个)</span>
                     {isOwnGroup && <Tag color="blue" style={{ fontSize: 10, margin: 0, padding: '0 4px', lineHeight: '16px' }}>我的组</Tag>}
                   </div>
@@ -267,7 +293,7 @@ export default function ProjectOverview() {
                 {g.projects.length === 0 ? (
                   <div style={{ textAlign: 'center', color: '#bfbfbf', padding: 20 }}>暂无项目</div>
                 ) : (
-                  g.projects.map((p) => renderProjectCard(p, theme))
+                  g.projects.map((p) => renderProjectCard(p, theme, isOwnGroup))
                 )}
               </Card>
             </Col>
