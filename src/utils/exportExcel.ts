@@ -323,10 +323,10 @@ function buildEfficiencySheet(
   // 明细合计
   applySummaryRow(ws, row, [
     '全部合计', '', '',
-    data.reduce((s, d) => s + d.projectDetails.reduce((a, p) => a + p.monthlyFee, 0), 0),
+    data.reduce((s, d) => s + d.projectDetails.reduce((a, p) => a + Number(p.monthlyFee || 0), 0), 0),
     '',
     '',
-    data.reduce((s, d) => s + d.projectDetails.reduce((a, p) => a + p.projectValue, 0), 0),
+    data.reduce((s, d) => s + d.projectDetails.reduce((a, p) => a + Number(p.projectValue || 0), 0), 0),
     '',
     totalEff,
   ], detailCols)

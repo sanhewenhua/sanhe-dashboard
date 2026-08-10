@@ -10,7 +10,7 @@ import {
   DollarOutlined,
 } from '@ant-design/icons'
 import { useStore } from '../store/useStore'
-import type { PaymentStatus } from '../types'
+import type { PaymentStatus, MonthlyRecord } from '../types'
 import { calcProjectMonthData, formatMoney, getStaffNames, issueTypeColors, getRecentMonths } from '../utils/helpers'
 import { exportToExcel } from '../utils/excel'
 import StaffSelect from '../components/StaffSelect'
@@ -412,7 +412,20 @@ export default function ProjectDetail() {
         <Table
           dataSource={recentMonths.flatMap((m) => {
             if (projectAccounts.length === 0) {
-              return [{ key: `${m}_empty`, month: m, isEmpty: true, noAccount: true }]
+              return [{
+                key: `${m}_empty`,
+                month: m,
+                accountId: '',
+                accountName: '',
+                isEmpty: true,
+                noAccount: true,
+                rowSpan: 1,
+                plannedCount: 0,
+                completedCount: 0,
+                paymentAmount: 0,
+                paidAmount: 0,
+                paymentStatus: '未收' as PaymentStatus,
+              }]
             }
             return projectAccounts.map((account, idx) => {
               const record = monthlyRecords.find((r) => r.projectId === project.id && r.accountId === account.id && r.yearMonth === m)
@@ -422,17 +435,16 @@ export default function ProjectDetail() {
                 accountId: account.id,
                 accountName: account.name,
                 isEmpty: !record,
+                noAccount: false,
                 rowSpan: idx === 0 ? projectAccounts.length : 0,
-              }
-              if (record) return { ...record, ...base }
-              return {
-                ...base,
                 plannedCount: 0,
                 completedCount: 0,
                 paymentAmount: 0,
                 paidAmount: 0,
                 paymentStatus: '未收' as PaymentStatus,
               }
+              if (record) return { ...base, ...record }
+              return base
             })
           })}
           rowKey="key"
