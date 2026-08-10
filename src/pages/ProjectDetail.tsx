@@ -10,6 +10,7 @@ import {
   DollarOutlined,
 } from '@ant-design/icons'
 import { useStore } from '../store/useStore'
+import type { PaymentStatus } from '../types'
 import { calcProjectMonthData, formatMoney, getStaffNames, issueTypeColors, getRecentMonths } from '../utils/helpers'
 import { exportToExcel } from '../utils/excel'
 import StaffSelect from '../components/StaffSelect'
@@ -22,7 +23,7 @@ export default function ProjectDetail() {
     projects, accounts, monthlyRecords, issues, staff, groups,
     selectedMonth, setSelectedMonth,
     updateProject, addAccount, updateAccount, deleteAccount,
-    updateMonthlyRecord, incrementCompleted,
+    addMonthlyRecord, updateMonthlyRecord, incrementCompleted,
     addIssue, updateIssue, deleteIssue,
   } = useStore()
 
@@ -155,6 +156,27 @@ export default function ProjectDetail() {
       }
     })
     exportToExcel(data, `${project.name}_月度记录`, '月度记录')
+  }
+
+  const ensureAndUpdateRecord = (record: any, updates: Partial<MonthlyRecord>) => {
+    if (record.isEmpty) {
+      addMonthlyRecord({
+        accountId: record.accountId,
+        projectId: project.id,
+        yearMonth: record.month,
+        plannedCount: 0,
+        completedCount: 0,
+        thisWeekPlan: 0,
+        lastWeekPlan: 0,
+        lastWeekActual: 0,
+        paymentAmount: 0,
+        paymentStatus: '未收',
+        paidAmount: 0,
+        ...updates,
+      })
+    } else {
+      updateMonthlyRecord(record.id, updates)
+    }
   }
 
   const activeStaff = staff.filter((s) => s.status === '在职')
@@ -389,17 +411,29 @@ export default function ProjectDetail() {
       >
         <Table
           dataSource={recentMonths.flatMap((m) => {
-            const monthRecords = monthlyRecords.filter((r) => r.projectId === project.id && r.yearMonth === m)
-            if (monthRecords.length === 0) {
-              return [{ key: `${m}_empty`, month: m, isEmpty: true }]
+            if (projectAccounts.length === 0) {
+              return [{ key: `${m}_empty`, month: m, isEmpty: true, noAccount: true }]
             }
-            return monthRecords.map((r) => ({
-              ...r,
-              key: r.id,
-              month: m,
-              accountName: projectAccounts.find((a) => a.id === r.accountId)?.name || r.accountId,
-              isEmpty: false,
-            }))
+            return projectAccounts.map((account, idx) => {
+              const record = monthlyRecords.find((r) => r.projectId === project.id && r.accountId === account.id && r.yearMonth === m)
+              const base = {
+                key: record?.id || `${m}_${account.id}`,
+                month: m,
+                accountId: account.id,
+                accountName: account.name,
+                isEmpty: !record,
+                rowSpan: idx === 0 ? projectAccounts.length : 0,
+              }
+              if (record) return { ...record, ...base }
+              return {
+                ...base,
+                plannedCount: 0,
+                completedCount: 0,
+                paymentAmount: 0,
+                paidAmount: 0,
+                paymentStatus: '未收' as PaymentStatus,
+              }
+            })
           })}
           rowKey="key"
           size="small"
@@ -407,36 +441,37 @@ export default function ProjectDetail() {
           scroll={{ x: 700 }}
           columns={[
             { title: '月份', dataIndex: 'month', width: 80,
-              render: (m: string, record: any) => (
-                <span style={{ fontWeight: 600 }}>{m}</span>
-              ),
+              render: (m: string, record: any) => ({
+                children: <span style={{ fontWeight: 600 }}>{m}</span>,
+                props: { rowSpan: record.rowSpan || 0 },
+              }),
             },
             { title: '账号', dataIndex: 'accountName', width: 120,
-              render: (name: string, record: any) => record.isEmpty ? <span style={{ color: '#bfbfbf' }}>-</span> : name,
+              render: (name: string, record: any) => record.noAccount ? <span style={{ color: '#bfbfbf' }}>无账号</span> : name,
             },
             { title: '计划', dataIndex: 'plannedCount', width: 70,
-              render: (v: number, record: any) => record.isEmpty ? '-' : (
+              render: (v: number, record: any) => record.noAccount ? '-' : (
                 <InputNumber
                   size="small" value={v} min={0}
-                  onChange={(val) => updateMonthlyRecord(record.id, { plannedCount: val ?? 0 })}
+                  onChange={(val) => ensureAndUpdateRecord(record, { plannedCount: val ?? 0 })}
                   style={{ width: 56 }}
                 />
               ),
             },
             { title: '已完成', width: 80,
-              render: (_, record: any) => record.isEmpty ? '-' : (
+              render: (_, record: any) => record.noAccount ? '-' : (
                 <InputNumber
                   size="small" value={record.completedCount}
-                  onChange={(v) => updateMonthlyRecord(record.id, { completedCount: v ?? 0 })}
+                  onChange={(v) => ensureAndUpdateRecord(record, { completedCount: v ?? 0 })}
                   style={{ width: 56 }}
                 />
               ),
             },
             { title: '应收', width: 90,
-              render: (_, record: any) => record.isEmpty ? '-' : (
+              render: (_, record: any) => record.noAccount ? '-' : (
                 <InputNumber
                   size="small" value={record.paymentAmount}
-                  onChange={(v) => updateMonthlyRecord(record.id, { paymentAmount: v ?? 0 })}
+                  onChange={(v) => ensureAndUpdateRecord(record, { paymentAmount: v ?? 0 })}
                   style={{ width: 72 }}
                   prefix="¥"
                   disabled={record.paymentStatus === '不付'}
@@ -444,13 +479,13 @@ export default function ProjectDetail() {
               ),
             },
             { title: '已收', width: 90,
-              render: (_, record: any) => record.isEmpty ? '-' : (
+              render: (_, record: any) => record.noAccount ? '-' : (
                 <InputNumber
                   size="small" value={record.paidAmount}
                   onChange={(v) => {
                     const val = v ?? 0
                     const status = val >= record.paymentAmount ? '已收' : val > 0 ? '部分收' : '未收'
-                    updateMonthlyRecord(record.id, { paidAmount: val, paymentStatus: status })
+                    ensureAndUpdateRecord(record, { paidAmount: val, paymentStatus: status })
                   }}
                   style={{ width: 72 }}
                   prefix="¥"
@@ -459,22 +494,22 @@ export default function ProjectDetail() {
               ),
             },
             { title: '状态', width: 90,
-              render: (_, record: any) => record.isEmpty ? '-' : (
+              render: (_, record: any) => record.noAccount ? '-' : (
                 <Select
                   size="small" value={record.paymentStatus}
                   style={{ width: 72 }}
                   onChange={(v) => {
                     if (v === '不付') {
-                      updateMonthlyRecord(record.id, { paymentStatus: '不付', paymentAmount: 0, paidAmount: 0 })
+                      ensureAndUpdateRecord(record, { paymentStatus: '不付', paymentAmount: 0, paidAmount: 0 })
                     } else if (v === '未收') {
-                      updateMonthlyRecord(record.id, { paymentStatus: '未收', paidAmount: 0 })
+                      ensureAndUpdateRecord(record, { paymentStatus: '未收', paidAmount: 0 })
                     } else if (v === '已收') {
-                      updateMonthlyRecord(record.id, { paymentStatus: '已收', paidAmount: record.paymentAmount })
+                      ensureAndUpdateRecord(record, { paymentStatus: '已收', paidAmount: record.paymentAmount })
                     } else {
                       // 部分收：保持当前已收金额（如果之前是0或全额，则默认0让用户手动输入）
                       const current = record.paidAmount
                       const nextPaid = current > 0 && current < record.paymentAmount ? current : 0
-                      updateMonthlyRecord(record.id, { paymentStatus: '部分收', paidAmount: nextPaid })
+                      ensureAndUpdateRecord(record, { paymentStatus: '部分收', paidAmount: nextPaid })
                     }
                   }}
                   options={[

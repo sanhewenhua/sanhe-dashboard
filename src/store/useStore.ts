@@ -142,6 +142,7 @@ interface AppState {
   deleteAccount: (id: string) => void
 
   // 月度记录操作
+  addMonthlyRecord: (record: Omit<MonthlyRecord, 'id'>) => void
   updateMonthlyRecord: (id: string, updates: Partial<MonthlyRecord>) => void
   incrementCompleted: (recordId: string) => void
 
@@ -334,6 +335,10 @@ export const useStore = create<AppState>()(
           return { accounts, monthlyRecords }
         }),
 
+      addMonthlyRecord: (record) =>
+        set((s) => ({
+          monthlyRecords: [...s.monthlyRecords, { ...record, id: genId('mr') }],
+        })),
       updateMonthlyRecord: (id, updates) =>
         set((s) => ({
           monthlyRecords: s.monthlyRecords.map((r) => (r.id === id ? { ...r, ...updates } : r)),
