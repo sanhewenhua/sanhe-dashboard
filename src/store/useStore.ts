@@ -537,7 +537,7 @@ export const useStore = create<AppState>()(
         })
       },
     }),
-    { name: 'sanhe-dashboard-data-v10', version: 10,
+    { name: 'sanhe-dashboard-data-v11', version: 11,
       // 数据恢复时的规范化处理：确保所有数组字段有效，防止 undefined 导致崩溃
       onRehydrateStorage: () => (state) => {
         if (!state) return
