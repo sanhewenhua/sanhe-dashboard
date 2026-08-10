@@ -1,6 +1,17 @@
-# React + TypeScript + Vite
+# 叁和文化 - 内部管理看板
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript + Vite 构建的内部管理看板系统。
+
+## 最近更新
+
+- 问题类型为「暂停」时，项目状态自动同步为「暂停」；问题状态改为「已解决」后自动恢复。
+
+## 技术栈
+
+- React + TypeScript + Vite
+- Ant Design
+- Express + WebSocket 后端
+- Railway 部署
 
 Currently, two official plugins are available:
 
