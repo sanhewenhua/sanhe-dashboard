@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Card, Table, Tag, Button, Modal, Form, Input, Select, Popconfirm, message, Row, Col, Progress, Tooltip, InputNumber, Statistic } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, BarChartOutlined, DollarOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined, BarChartOutlined, DollarOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useStore } from '../store/useStore'
 import { calcStaffWorkload, calcStaffEfficiency, getRecentMonths, formatPercent, formatMoney } from '../utils/helpers'
+import { exportStaffExcel } from '../utils/exportExcel'
 import type { StaffRole } from '../types'
 import type { StaffWorkloadResult, StaffEfficiencyResult } from '../utils/helpers'
 
@@ -112,7 +113,14 @@ export default function StaffManage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 22 }}>员工管理</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增员工</Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Tooltip title="导出全部三个板块到一个Excel文件">
+            <Button icon={<DownloadOutlined />} onClick={() => exportStaffExcel(workloadData, efficiencyData, safeStaff, staffSalaries, safeGroups, workloadMonth, effMonth)}>
+              导出全部
+            </Button>
+          </Tooltip>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增员工</Button>
+        </div>
       </div>
 
       {/* Tab切换 */}
@@ -157,9 +165,16 @@ export default function StaffManage() {
             </div>
           }
           extra={
-            <Tooltip title="工作量 = 各岗位贡献之和。每个岗位贡献 = 该项目本月「已完成」条数 ÷ 该岗位人数。只统计已完成，不统计计划总量。如剪辑2人、本月已完成6条，每人剪辑贡献=3。组长不计入">
-              <span style={{ fontSize: 12, color: '#8c8c8c', cursor: 'help' }}>计算说明</span>
-            </Tooltip>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Tooltip title="导出工作量统计表">
+                <Button size="small" icon={<DownloadOutlined />} onClick={() => exportStaffExcel(workloadData, efficiencyData, safeStaff, staffSalaries, safeGroups, workloadMonth, effMonth, '工作量统计')}>
+                  导出
+                </Button>
+              </Tooltip>
+              <Tooltip title="工作量 = 各岗位贡献之和。每个岗位贡献 = 该项目本月「已完成」条数 ÷ 该岗位人数。只统计已完成，不统计计划总量。如剪辑2人、本月已完成6条，每人剪辑贡献=3。组长不计入">
+                <span style={{ fontSize: 12, color: '#8c8c8c', cursor: 'help' }}>计算说明</span>
+              </Tooltip>
+            </div>
           }
         >
           {workloadData.length === 0 ? (
@@ -380,9 +395,16 @@ export default function StaffManage() {
             </div>
           }
           extra={
-            <Tooltip title="项目产值 = 月费 × 完成率（已完成/计划，上限100%）。岗位产值 = 项目产值 / 岗位数（排除组长）。每人某岗位人效 = 岗位产值 / 该岗位人数。一人多岗则各岗位人效相加">
-              <span style={{ fontSize: 12, color: '#8c8c8c', cursor: 'help' }}>计算说明</span>
-            </Tooltip>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Tooltip title="导出人效计算表">
+                <Button size="small" icon={<DownloadOutlined />} onClick={() => exportStaffExcel(workloadData, efficiencyData, safeStaff, staffSalaries, safeGroups, workloadMonth, effMonth, '人效计算')}>
+                  导出
+                </Button>
+              </Tooltip>
+              <Tooltip title="项目产值 = 月费 × 完成率（已完成/计划，上限100%）。岗位产值 = 项目产值 / 岗位数（排除组长）。每人某岗位人效 = 岗位产值 / 该岗位人数。一人多岗则各岗位人效相加">
+                <span style={{ fontSize: 12, color: '#8c8c8c', cursor: 'help' }}>计算说明</span>
+              </Tooltip>
+            </div>
           }
         >
           {efficiencyData.length === 0 ? (
@@ -639,7 +661,15 @@ export default function StaffManage() {
 
       {/* ===== 员工信息 ===== */}
       {activeTab === 'staff' && (
-        <Card size="small">
+        <Card size="small"
+          extra={
+            <Tooltip title="导出员工信息表">
+              <Button size="small" icon={<DownloadOutlined />} onClick={() => exportStaffExcel(workloadData, efficiencyData, safeStaff, staffSalaries, safeGroups, workloadMonth, effMonth, '员工信息')}>
+                导出
+              </Button>
+            </Tooltip>
+          }
+        >
           <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
             {safeGroups.map((g, gi) => {
               const count = safeStaff.filter((s) => s.groupId === g.id).length

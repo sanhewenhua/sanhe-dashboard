@@ -16,6 +16,7 @@
     "@ant-design/icons": "^5.5.0",
     "antd": "^5.22.0",
     "dayjs": "^1.11.13",
+    "exceljs": "^4.4.0",
     "express": "^4.22.2",
     "file-saver": "^2.0.5",
     "react": "^19.2.8",
