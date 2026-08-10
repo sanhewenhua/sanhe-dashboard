@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Card, Row, Col, Tag, Button, Table, Modal, Form, Input, InputNumber, Select, DatePicker, Steps, Popconfirm, message } from 'antd'
 import { PlusOutlined, DownloadOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useStore } from '../store/useStore'
 import { calcProjectMonthData, formatMoney, getStaffNames, getProgressColor } from '../utils/helpers'
 import { exportToExcel } from '../utils/excel'
@@ -38,6 +38,8 @@ const leadTheme = { border: '#fa8c16', bg: '#fffbf5', headerBg: '#fff7e6', dot: 
 
 export default function ProjectOverview() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const filterGroupId = searchParams.get('group') || ''
   const { projects, accounts, monthlyRecords, issues, staff, groups, leads, selectedMonth, currentGroup, addLead, updateLead, convertLeadToProject } = useStore()
   const [leadModalOpen, setLeadModalOpen] = useState(false)
   const [leadForm] = Form.useForm()
@@ -46,7 +48,8 @@ export default function ProjectOverview() {
   const activeProjects = projects.filter((p) => p.status === '进行中' || p.status === '暂停')
 
   const groupProjects = useMemo(() => {
-    return groups.map((g) => {
+    const targetGroups = filterGroupId ? groups.filter((g) => g.id === filterGroupId) : groups
+    return targetGroups.map((g) => {
       const gProjects = activeProjects.filter((p) => p.groupId === g.id)
       return {
         ...g,
@@ -69,7 +72,7 @@ export default function ProjectOverview() {
         }),
       }
     })
-  }, [projects, accounts, monthlyRecords, issues, staff, groups, selectedMonth])
+  }, [projects, accounts, monthlyRecords, issues, staff, groups, selectedMonth, filterGroupId])
 
   const activeLeads = leads.filter((l) => l.stage !== '已签约转正式' && l.stage !== '已流失')
   const negotiatorName = (id: string) => staff.find((s) => s.id === id)?.name || ''
@@ -193,13 +196,29 @@ export default function ProjectOverview() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 22 }}>项目总览</h2>
+        <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 22 }}>
+          项目总览
+          {filterGroupId && (() => {
+            const fg = groups.find((g) => g.id === filterGroupId)
+            const theme = fg ? getGroupTheme(fg.id, 0) : null
+            return (
+              <span style={{ marginLeft: 12 }}>
+                <Tag closable onClose={() => navigate('/overview')} style={{
+                  margin: 0, fontSize: 13, padding: '2px 10px', fontWeight: 600,
+                  borderColor: theme?.border, color: theme?.border, background: theme?.bg,
+                }}>
+                  {fg?.name || filterGroupId}
+                </Tag>
+              </span>
+            )
+          })()}
+        </h2>
         <Button icon={<DownloadOutlined />} onClick={handleExport}>导出</Button>
       </div>
 
       {/* 统计卡片 */}
       <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-        {groups.map((g, gi) => {
+        {(filterGroupId ? groups.filter((g) => g.id === filterGroupId) : groups).map((g, gi) => {
           const theme = getGroupTheme(g.id, gi)
           const gAccountCount = accounts.filter((a) => {
             const proj = activeProjects.find((p) => p.id === a.projectId)

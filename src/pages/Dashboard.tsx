@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react'
 import { Card, Row, Col, Progress, Tag, Table, Button, Tooltip, Modal, Select, Space } from 'antd'
+import { useNavigate } from 'react-router-dom'
 import {
   DownloadOutlined, AlertOutlined, VideoCameraOutlined,
   DollarOutlined, CheckCircleOutlined, ProjectOutlined,
@@ -53,6 +54,7 @@ export default function Dashboard() {
     projects, accounts, monthlyRecords, issues, staff, groups, selectedMonth,
     ensureCarryOver, currentGroup,
   } = useStore()
+  const navigate = useNavigate()
 
   // 应用启动时自动结转上月数据
   useEffect(() => {
@@ -63,6 +65,8 @@ export default function Dashboard() {
   const [snapshotMonth, setSnapshotMonth] = useState(selectedMonth)
   const [unpaidDetailOpen, setUnpaidDetailOpen] = useState(false)
   const [paidDetailOpen, setPaidDetailOpen] = useState(false)
+  const [monthReceivedOpen, setMonthReceivedOpen] = useState(false)
+  const [monthIssueOpen, setMonthIssueOpen] = useState(false)
   const isMobile = window.innerWidth <= 768
 
   const lastMonth = useMemo(() => {
@@ -177,6 +181,20 @@ export default function Dashboard() {
       return { ...p, unpaid: d.monthUnpaid, groupName: projGroup?.name || '' }
     }).filter((p) => p.unpaid > 0).sort((a, b) => b.unpaid - a.unpaid)
 
+    // 本月已收项目明细
+    const receivedList = activeProjects.map((p) => {
+      const d = calcProjectMonthData(p, accounts, monthlyRecords, issues, selectedMonth)
+      const projGroup = groups.find((g) => g.id === p.groupId)
+      return { ...p, received: d.monthPaidAmount, receivable: d.monthPaymentAmount, groupName: projGroup?.name || '' }
+    }).filter((p) => p.received > 0).sort((a, b) => b.received - a.received)
+
+    // 有问题项目列表
+    const issueProjects = projectWithIssues.map((p) => {
+      const projIssues = issues.filter((i) => i.projectId === p.id && i.status !== '已解决')
+      const projGroup = groups.find((g) => g.id === p.groupId)
+      return { ...p, issueList: projIssues, groupName: projGroup?.name || '', issueCount: projIssues.length }
+    })
+
     // 近6个月趋势
     const recentMonths = getRecentMonths(6)
     const trendData = recentMonths.map((m) => {
@@ -195,7 +213,7 @@ export default function Dashboard() {
       activeProjectCount: activeProjects.length,
       activeAccountCount,
       issueCount: projectWithIssues.length,
-      groupStats, warnings, unpaidList, trendData,
+      groupStats, warnings, unpaidList, receivedList, issueProjects, trendData,
     }
   }, [projects, accounts, monthlyRecords, issues, staff, groups, selectedMonth, lastMonth])
 
@@ -297,7 +315,10 @@ export default function Dashboard() {
           <div style={{
             background: 'linear-gradient(135deg, #13c2c2 0%, #36cfc9 100%)',
             borderRadius: 12, padding: '16px 16px 12px', color: '#fff', position: 'relative', overflow: 'hidden',
-          }}>
+            cursor: data.monthReceived > 0 ? 'pointer' : 'default',
+          }}
+            onClick={() => { if (data.monthReceived > 0) setMonthReceivedOpen(true) }}
+          >
             <DollarOutlined style={{ position: 'absolute', right: 12, top: 12, fontSize: 36, opacity: 0.2 }} />
             <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 4 }}>本月已收</div>
             <div style={{ fontSize: isMobile ? 24 : 30, fontWeight: 700, lineHeight: 1.1 }}>
@@ -305,6 +326,7 @@ export default function Dashboard() {
             </div>
             <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
               上月 ¥{data.lastMonthReceived.toLocaleString()}元
+              {data.monthReceived > 0 && <span style={{ marginLeft: 6, textDecoration: 'underline' }}>点击看明细</span>}
             </div>
             {receivedTrend !== 0 && (
               <div style={{
@@ -326,7 +348,10 @@ export default function Dashboard() {
               ? 'linear-gradient(135deg, #f5222d 0%, #ff7875 100%)'
               : 'linear-gradient(135deg, #52c41a 0%, #95de64 100%)',
             borderRadius: 12, padding: '16px 16px 12px', color: '#fff', position: 'relative', overflow: 'hidden',
-          }}>
+            cursor: data.monthUnpaid > 0 ? 'pointer' : 'default',
+          }}
+            onClick={() => { if (data.monthUnpaid > 0) setUnpaidDetailOpen(true) }}
+          >
             <WarningOutlined style={{ position: 'absolute', right: 12, top: 12, fontSize: 36, opacity: 0.2 }} />
             <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 4 }}>{data.monthUnpaid > 0 ? '待收款' : '全部收齐'}</div>
             <div style={{ fontSize: isMobile ? 24 : 30, fontWeight: 700, lineHeight: 1.1 }}>
@@ -334,6 +359,7 @@ export default function Dashboard() {
             </div>
             <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
               应收 ¥{data.monthReceivable.toLocaleString()}元 · {data.unpaidList.length}个项目待收
+              {data.monthUnpaid > 0 && <span style={{ marginLeft: 6, textDecoration: 'underline' }}>点击看明细</span>}
             </div>
           </div>
         </Col>
@@ -351,7 +377,13 @@ export default function Dashboard() {
           </Card>
         </Col>
         <Col xs={8}>
-          <Card size="small" style={{ textAlign: 'center', borderRadius: 10, borderColor: data.issueCount > 0 ? '#ffccc7' : '#d9d9d9' }}>
+          <Card size="small" style={{
+            textAlign: 'center', borderRadius: 10,
+            borderColor: data.issueCount > 0 ? '#ffccc7' : '#d9d9d9',
+            cursor: data.issueCount > 0 ? 'pointer' : 'default',
+          }}
+            onClick={() => { if (data.issueCount > 0) setMonthIssueOpen(true) }}
+          >
             <AlertOutlined style={{ fontSize: 18, color: data.issueCount > 0 ? '#f5222d' : '#52c41a' }} />
             <div style={{
               fontSize: isMobile ? 20 : 24, fontWeight: 700, marginTop: 2,
@@ -478,7 +510,11 @@ export default function Dashboard() {
                   boxShadow: isOwnGroup ? `0 0 12px ${colors.border}30` : undefined,
                   opacity: isOwnGroup ? 1 : 0.75,
                   transition: 'all 0.2s',
-                }}>
+                  cursor: 'pointer',
+                }}
+                  onClick={() => navigate(`/overview?group=${g.id}`)}
+                  title={`点击查看${g.name}全部项目`}
+                >
                   {/* 组名 + 项目数 */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1315,6 +1351,109 @@ export default function Dashboard() {
             </div>
           )
         })()}
+      </Modal>
+
+      {/* ===== 本月已收明细 Modal ===== */}
+      <Modal
+        title={<Space><DollarOutlined style={{ color: '#13c2c2' }} />{selectedMonth} 已收款明细<Tag color="green">¥{data.monthReceived.toLocaleString()}</Tag></Space>}
+        open={monthReceivedOpen}
+        onCancel={() => setMonthReceivedOpen(false)}
+        width={isMobile ? '95%' : 800}
+        footer={<Button onClick={() => setMonthReceivedOpen(false)}>关闭</Button>}
+      >
+        {data.receivedList.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#bfbfbf', padding: 30 }}>本月无已收款记录</div>
+        ) : (
+          <Table
+            dataSource={data.receivedList}
+            rowKey="id"
+            size="small"
+            pagination={false}
+            columns={[
+              { title: '组', dataIndex: 'groupName', width: 60, render: (g: string) => {
+                const idx = groups.findIndex((gr) => gr.name === g)
+                const c = idx >= 0 ? getGroupColor(g, idx) : null
+                return c ? <span style={{ display: 'inline-block', padding: '1px 8px', borderRadius: 4, background: c.bg, color: c.text, fontSize: 12, fontWeight: 600 }}>{g}</span> : g
+              }},
+              { title: '项目', dataIndex: 'name', width: 160, render: (n: string) => <span style={{ fontWeight: 700, fontSize: 14 }}>{n}</span> },
+              { title: '对接人', dataIndex: 'contactName', width: 80 },
+              { title: '本月应收', width: 110, render: (_: any, r: any) => <span style={{ color: '#595959', fontWeight: 600 }}>¥{r.receivable.toLocaleString()}</span> },
+              { title: '本月已收', width: 110, render: (_: any, r: any) => <span style={{ color: '#13c2c2', fontWeight: 700, fontSize: 15 }}>¥{r.received.toLocaleString()}</span> },
+              { title: '收款状态', width: 80, render: (_: any, r: any) => r.receivable <= r.received ? <Tag color="green">已收齐</Tag> : <Tag color="orange">部分收</Tag> },
+            ]}
+          />
+        )}
+      </Modal>
+
+      {/* ===== 本月待收明细 Modal ===== */}
+      <Modal
+        title={<Space><WarningOutlined style={{ color: '#f5222d' }} />{selectedMonth} 待收款明细<Tag color="red">{data.unpaidList.length}个项目</Tag></Space>}
+        open={unpaidDetailOpen}
+        onCancel={() => setUnpaidDetailOpen(false)}
+        width={isMobile ? '95%' : 800}
+        footer={<Button onClick={() => setUnpaidDetailOpen(false)}>关闭</Button>}
+      >
+        {data.unpaidList.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#52c41a', padding: 30, fontSize: 16 }}>本月款项已全部收齐</div>
+        ) : (
+          <Table
+            dataSource={data.unpaidList}
+            rowKey="id"
+            size="small"
+            pagination={false}
+            columns={[
+              { title: '组', dataIndex: 'groupName', width: 60, render: (g: string) => {
+                const idx = groups.findIndex((gr) => gr.name === g)
+                const c = idx >= 0 ? getGroupColor(g, idx) : null
+                return c ? <span style={{ display: 'inline-block', padding: '1px 8px', borderRadius: 4, background: c.bg, color: c.text, fontSize: 12, fontWeight: 600 }}>{g}</span> : g
+              }},
+              { title: '项目', dataIndex: 'name', width: 160, render: (n: string) => <span style={{ fontWeight: 700, fontSize: 14 }}>{n}</span> },
+              { title: '对接人', dataIndex: 'contactName', width: 80 },
+              { title: '待收金额', dataIndex: 'unpaid', render: (v: number) => <span style={{ color: '#f5222d', fontWeight: 700, fontSize: 15 }}>{formatMoney(v)}</span> },
+            ]}
+          />
+        )}
+        <div style={{ marginTop: 12, textAlign: 'right', color: '#8c8c8c', fontSize: 12 }}>
+          待收合计：<strong style={{ color: '#f5222d', fontSize: 15 }}>¥{data.monthUnpaid.toLocaleString()}</strong>
+        </div>
+      </Modal>
+
+      {/* ===== 有问题项目明细 Modal ===== */}
+      <Modal
+        title={<Space><AlertOutlined style={{ color: '#f5222d' }} />有问题项目明细<Tag color="red">{data.issueCount}个</Tag></Space>}
+        open={monthIssueOpen}
+        onCancel={() => setMonthIssueOpen(false)}
+        width={isMobile ? '95%' : 800}
+        footer={<Button onClick={() => setMonthIssueOpen(false)}>关闭</Button>}
+      >
+        {data.issueProjects.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#52c41a', padding: 30, fontSize: 16 }}>所有项目运行正常</div>
+        ) : (
+          data.issueProjects.map((p: any) => (
+            <div key={p.id} style={{
+              padding: 12, marginBottom: 8, background: '#fff2f0', borderRadius: 8, border: '1px solid #ffccc7',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>{p.name}</span>
+                <Tag>{p.groupName}</Tag>
+                <span style={{ fontSize: 12, color: '#8c8c8c' }}>{p.contactName}</span>
+                <span style={{ marginLeft: 'auto', color: '#f5222d', fontWeight: 600, fontSize: 13 }}>{p.issueCount}个问题</span>
+              </div>
+              {p.issueList.map((iss: any) => (
+                <div key={iss.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px',
+                  background: '#fff', borderRadius: 4, marginBottom: 4, fontSize: 13,
+                }}>
+                  <Tag color={iss.type === '违规' ? 'red' : iss.type === '进度' ? 'orange' : 'default'} style={{ margin: 0, fontSize: 11 }}>
+                    {iss.type}
+                  </Tag>
+                  <span style={{ color: '#595959' }}>{iss.description}</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 11, color: '#bfbfbf' }}>{iss.reportedAt}</span>
+                </div>
+              ))}
+            </div>
+          ))
+        )}
       </Modal>
     </div>
   )
