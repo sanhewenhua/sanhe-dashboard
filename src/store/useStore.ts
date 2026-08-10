@@ -32,6 +32,24 @@ function normalizeStaff(staff: unknown): Staff[] {
   })) as Staff[]
 }
 
+/** 根据未解决的"暂停"问题同步项目状态：有则暂停，无则恢复为进行中 */
+function syncProjectStatusByIssues(projects: Project[], issues: Issue[]): Project[] {
+  const pausedProjectIds = new Set(
+    issues.filter((i) => i.type === '暂停' && i.status !== '已解决').map((i) => i.projectId)
+  )
+  const now = new Date().toISOString()
+  return projects.map((p) => {
+    const shouldPause = pausedProjectIds.has(p.id)
+    if (shouldPause && p.status !== '暂停') {
+      return { ...p, status: '暂停', updatedAt: now }
+    }
+    if (!shouldPause && p.status === '暂停') {
+      return { ...p, status: '进行中', updatedAt: now }
+    }
+    return p
+  })
+}
+
 /** 重算项目某月所有账号的 paymentAmount（按配额比例分配月费），跳过"不付"记录 */
 function recalcPaymentAmounts(
   projectId: string,
@@ -316,22 +334,28 @@ export const useStore = create<AppState>()(
       addIssue: (issue) =>
         set((s) => {
           const newIssue = { ...issue, id: genId('i') }
-          const next: Partial<AppState> = { issues: [newIssue, ...s.issues] }
-          // 问题类型为"暂停"时，自动同步项目状态为暂停
-          if (issue.type === '暂停') {
-            const now = new Date().toISOString()
-            next.projects = s.projects.map((p) =>
-              p.id === issue.projectId && p.status !== '暂停'
-                ? { ...p, status: '暂停', updatedAt: now }
-                : p
-            )
+          const nextIssues = [newIssue, ...s.issues]
+          return {
+            issues: nextIssues,
+            projects: syncProjectStatusByIssues(s.projects, nextIssues),
           }
-          return next
         }),
       updateIssue: (id, updates) =>
-        set((s) => ({ issues: s.issues.map((x) => (x.id === id ? { ...x, ...updates } : x)) })),
+        set((s) => {
+          const nextIssues = s.issues.map((x) => (x.id === id ? { ...x, ...updates } : x))
+          return {
+            issues: nextIssues,
+            projects: syncProjectStatusByIssues(s.projects, nextIssues),
+          }
+        }),
       deleteIssue: (id) =>
-        set((s) => ({ issues: s.issues.filter((x) => x.id !== id) })),
+        set((s) => {
+          const nextIssues = s.issues.filter((x) => x.id !== id)
+          return {
+            issues: nextIssues,
+            projects: syncProjectStatusByIssues(s.projects, nextIssues),
+          }
+        }),
 
       addLead: (lead) => {
         const now = new Date().toISOString()
@@ -469,15 +493,17 @@ export const useStore = create<AppState>()(
       syncConnected: false,
       setSyncConnected: (connected) => set({ syncConnected: connected }),
       loadFromServer: (data) => {
+        const normalizedProjects = normalizeProjects(data.projects)
+        const issues = Array.isArray(data.issues) ? data.issues as Issue[] : initialIssues
         set({
           staff: normalizeStaff(data.staff),
           groups: Array.isArray(data.groups) ? data.groups as Group[] : initialGroups,
-          projects: normalizeProjects(data.projects),
+          projects: syncProjectStatusByIssues(normalizedProjects, issues),
           accounts: Array.isArray(data.accounts) ? data.accounts as Account[] : initialAccounts,
           monthlyRecords: Array.isArray(data.monthlyRecords)
             ? data.monthlyRecords as MonthlyRecord[]
             : [...initialMonthlyRecords, ...initialLastMonthRecords],
-          issues: Array.isArray(data.issues) ? data.issues as Issue[] : initialIssues,
+          issues,
           leads: Array.isArray(data.leads) ? data.leads as Lead[] : initialLeads,
           monthSnapshots: Array.isArray(data.monthSnapshots)
             ? data.monthSnapshots as MonthPaymentSnapshot[]
@@ -520,21 +546,9 @@ export const useStore = create<AppState>()(
             roles: Array.isArray(s.roles) ? s.roles : [],
           }))
         }
-        // 修复：有未解决的"暂停"问题的项目，状态自动同步为暂停
+        // 修复：根据未解决的"暂停"问题同步项目状态（新增/编辑/删除问题时也会触发）
         if (Array.isArray(state.issues) && Array.isArray(state.projects)) {
-          const pausedProjectIds = new Set(
-            state.issues
-              .filter((i) => i.type === '暂停' && i.status !== '已解决')
-              .map((i) => i.projectId)
-          )
-          if (pausedProjectIds.size > 0) {
-            const now = new Date().toISOString()
-            state.projects = state.projects.map((p) =>
-              pausedProjectIds.has(p.id) && p.status !== '暂停'
-                ? { ...p, status: '暂停', updatedAt: now }
-                : p
-            )
-          }
+          state.projects = syncProjectStatusByIssues(state.projects, state.issues)
         }
       },
     }
