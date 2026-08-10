@@ -533,7 +533,7 @@ export const useStore = create<AppState>()(
             : {},
           legacyReceivables: Array.isArray(data.legacyReceivables)
             ? data.legacyReceivables as LegacyReceivable[]
-            : initialLegacyReceivables,
+            : get().legacyReceivables,
         })
       },
     }),

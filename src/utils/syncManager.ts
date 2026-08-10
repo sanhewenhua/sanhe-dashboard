@@ -16,6 +16,7 @@ type SyncData = {
   leads?: unknown[]
   monthSnapshots?: unknown[]
   staffSalaries?: Record<string, number>
+  legacyReceivables?: unknown[]
 }
 
 type ServerMessage =
@@ -39,6 +40,7 @@ const SYNC_KEYS: (keyof SyncData)[] = [
   'leads',
   'monthSnapshots',
   'staffSalaries',
+  'legacyReceivables',
 ]
 
 /** 从 store 提取需要同步的数据 */
