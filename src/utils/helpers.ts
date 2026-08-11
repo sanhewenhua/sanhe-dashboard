@@ -381,11 +381,11 @@ export interface ProjectQualityScore {
   staffCount: number            // 非组长参与人数
   consecutiveMonths: number     // 连续合作月数
   // 各维度得分
-  revenueScore: number          // 收入力 0-20
-  executionScore: number        // 执行力 0-20
-  roiScore: number              // 回报力 0-20
-  paymentScore: number          // 回款力 0-15
-  cooperationScore: number      // 合作力 0-25（按合作时长分级：首次/磨合/成长/稳定/深度）
+  totalPriceScore: number       // 总价 0-30（月费总额 vs 全局最高）
+  unitPriceScore: number        // 单价 0-30（月费÷产出 vs 全局均价）
+  cooperationScore: number      // 稳定力 0-20（按合作时长分级：首次/磨合/成长/稳定/深度）
+  paymentScore: number          // 回款 0-10
+  roiScore: number              // 回报 0-10
   totalScore: number            // 0-100
   tier: '优质' | '良好' | '一般' | '劣质'
   tierOrder: number             // 用于排序：3=优质 2=良好 1=一般 0=劣质
@@ -543,11 +543,11 @@ export function calcProjectQualityRanking(
       if (d.isTerminated) {
         return {
           ...d,
-          revenueScore: 0,
-          executionScore: 0,
-          roiScore: 0,
-          paymentScore: 0,
+          totalPriceScore: 0,
+          unitPriceScore: 0,
           cooperationScore: 0,
+          paymentScore: 0,
+          roiScore: 0,
           totalScore: 0,
           tier: '劣质' as const,
           tierOrder: 0,
@@ -555,74 +555,57 @@ export function calcProjectQualityRanking(
         }
       }
 
-      // === 1. 收入力 (20分) ===
-      // 月费与全局最高月费的比值 × 20
-      let revenueScore = maxFee > 0 ? (d.feeNum / maxFee) * 20 : 0
+      // === 1. 总价 (30分) ===
+      // 月费总额与全局最高月费的比值 × 30
+      let totalPriceScore = maxFee > 0 ? (d.feeNum / maxFee) * 30 : 0
       if (d.feeNum === 0 && typeof d.monthlyFee === 'string') {
-        revenueScore = 6 // 提成制/无固定费用给基础分
+        totalPriceScore = 9 // 提成制/无固定费用给基础分
         w.push('无固定月费（提成制）')
       }
       if (d.feeNum === 0 && typeof d.monthlyFee === 'number') {
-        revenueScore = 4
+        totalPriceScore = 6
         w.push('月费为0')
       }
-      revenueScore = Math.round(revenueScore * 10) / 10
+      totalPriceScore = Math.round(totalPriceScore * 10) / 10
 
-      // === 2. 执行力 (20分) ===
-      // 上月完成率 × 20。无计划数据按50%算
-      let effectiveRate = d.completionRate
-      if (d.lastMonthPlanned === 0) {
-        effectiveRate = d.lastMonthCompleted > 0 ? 1 : 0.5
-        if (d.lastMonthCompleted === 0) w.push('上月无计划数据')
-      }
-      const executionScore = Math.round(Math.min(effectiveRate * 20, 20) * 10) / 10
-
-      // === 3. 回报力 (20分) ===
-      // 人均产值 = 上月已收 / 参与人数，与全局人均产值对比
-      const perStaff = d.staffCount > 0 ? d.lastMonthReceived / d.staffCount : d.lastMonthReceived
-      let roiScore = avgPerStaffRevenue > 0
-        ? Math.min((perStaff / avgPerStaffRevenue) * 12, 20) // 达到均值12分，1.67倍人均满分
-        : 10
-      if (d.staffCount === 0) {
-        roiScore = Math.min(roiScore, 8) // 无人分配，最多8分
-        w.push('未分配运营人员')
-      }
-      if (d.lastMonthReceived === 0 && d.lastMonthReceivable > 0) {
-        roiScore = Math.min(roiScore, 4) // 有应收但没收到钱
-        w.push('上月款项未收回')
-      }
-      roiScore = Math.round(roiScore * 10) / 10
-
-      // === 4. 回款力 (15分) ===
-      let paymentScore: number
-      if (d.lastMonthReceivable === 0) {
-        paymentScore = 10 // 无应收，默认中等
-        w.push('上月无应收款')
+      // === 2. 单价 (30分) ===
+      // 单价 = 月费 ÷ 上月产出（视频数量），与全局均价对比
+      // 产量为0时按保底分算
+      let unitPriceScore: number
+      const output = d.lastMonthCompleted > 0 ? d.lastMonthCompleted : 0
+      if (output > 0 && d.feeNum > 0) {
+        const unitPrice = d.feeNum / output
+        // 全局有效均价（排除产出为0的项目）
+        const validData = rawData.filter((x) => x.lastMonthCompleted > 0 && x.feeNum > 0)
+        const avgUnitPrice = validData.length > 0
+          ? validData.reduce((s, x) => s + x.feeNum / x.lastMonthCompleted, 0) / validData.length
+          : unitPrice
+        // 单价达到均值得18分，2倍均价满分30分
+        unitPriceScore = avgUnitPrice > 0
+          ? Math.min((unitPrice / avgUnitPrice) * 18, 30)
+          : 15
+      } else if (d.feeNum > 0 && output === 0) {
+        unitPriceScore = 10 // 有月费但上月无产出
+        w.push('上月无视频产出')
       } else {
-        paymentScore = d.paymentRate * 15
+        unitPriceScore = 8 // 提成制且无产出
       }
-      paymentScore = Math.round(paymentScore * 10) / 10
+      unitPriceScore = Math.round(unitPriceScore * 10) / 10
 
-      // === 5. 合作力 (25分) ===
+      // === 3. 稳定力 (20分) ===
       // 按连续合作月数分级打分，长期合作价值更高
       const months = d.consecutiveMonths
       let cooperationScore: number
-      let coopLabel: string
       if (months <= 1) {
-        cooperationScore = 5
-        coopLabel = '首次合作'
+        cooperationScore = 4
       } else if (months <= 3) {
-        cooperationScore = 12
-        coopLabel = '磨合期'
+        cooperationScore = 10
       } else if (months <= 6) {
-        cooperationScore = 18
-        coopLabel = '成长期'
+        cooperationScore = 15
       } else if (months <= 11) {
-        cooperationScore = 22
-        coopLabel = '稳定期'
+        cooperationScore = 18
       } else {
-        cooperationScore = 25
-        coopLabel = '深度合作'
+        cooperationScore = 20
       }
       if (d.isPaused) {
         cooperationScore = Math.max(cooperationScore - 3, 0)
@@ -634,9 +617,35 @@ export function calcProjectQualityRanking(
       }
       cooperationScore = Math.round(cooperationScore * 10) / 10
 
+      // === 4. 回款 (10分) ===
+      let paymentScore: number
+      if (d.lastMonthReceivable === 0) {
+        paymentScore = 7 // 无应收，默认中等
+        w.push('上月无应收款')
+      } else {
+        paymentScore = d.paymentRate * 10
+      }
+      paymentScore = Math.round(paymentScore * 10) / 10
+
+      // === 5. 回报 (10分) ===
+      // 人均产值 = 上月已收 / 参与人数，与全局人均产值对比
+      const perStaff = d.staffCount > 0 ? d.lastMonthReceived / d.staffCount : d.lastMonthReceived
+      let roiScore = avgPerStaffRevenue > 0
+        ? Math.min((perStaff / avgPerStaffRevenue) * 6, 10) // 达到均值得6分，1.67倍人均满分
+        : 5
+      if (d.staffCount === 0) {
+        roiScore = Math.min(roiScore, 5) // 无人分配，最多5分
+        w.push('未分配运营人员')
+      }
+      if (d.lastMonthReceived === 0 && d.lastMonthReceivable > 0) {
+        roiScore = Math.min(roiScore, 3) // 有应收但没收到钱
+        w.push('上月款项未收回')
+      }
+      roiScore = Math.round(roiScore * 10) / 10
+
       // === 总分 ===
       const totalScore = Math.round(
-        (revenueScore + executionScore + roiScore + paymentScore + cooperationScore) * 10
+        (totalPriceScore + unitPriceScore + cooperationScore + paymentScore + roiScore) * 10
       ) / 10
 
       // === 分档 ===
@@ -664,11 +673,11 @@ export function calcProjectQualityRanking(
         paymentRate: d.paymentRate,
         staffCount: d.staffCount,
         consecutiveMonths: d.consecutiveMonths,
-        revenueScore,
-        executionScore,
-        roiScore,
-        paymentScore,
+        totalPriceScore,
+        unitPriceScore,
         cooperationScore,
+        paymentScore,
+        roiScore,
         totalScore,
         tier,
         tierOrder,
