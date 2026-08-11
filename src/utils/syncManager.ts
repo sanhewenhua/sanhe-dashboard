@@ -26,9 +26,11 @@ type ServerMessage =
 
 let ws: WebSocket | null = null
 let isReceiving = false // 正在从服务器接收数据，阻止反向同步
+let isReconnecting = false // 重连后短暂标记，此期间的sync消息不覆盖本地
 let pushTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let connectionCallback: ((connected: boolean) => void) | null = null
+let getFullState: (() => SyncData) | null = null
 
 // 需要同步的业务数据字段
 const SYNC_KEYS: (keyof SyncData)[] = [
@@ -90,6 +92,20 @@ export function initSync(
   ws.onopen = () => {
     console.log('[Sync] WebSocket 已连接')
     if (connectionCallback) connectionCallback(true)
+
+    // 重连时：立即推送本地完整状态到服务器，防止服务器旧数据覆盖本地修改
+    if (getFullState) {
+      const data = getFullState()
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'update', data }))
+        // 标记重连保护窗口：接下来 2 秒内收到的 sync（可能是自己推送的回响或其他客户端的旧数据）
+        // 只跳过，因为我们已经推送了本地最新状态
+        isReconnecting = true
+        setTimeout(() => {
+          isReconnecting = false
+        }, 2000)
+      }
+    }
   }
 
   ws.onmessage = (event) => {
@@ -97,6 +113,12 @@ export function initSync(
       const msg: ServerMessage = JSON.parse(event.data)
 
       if (msg.type === 'sync') {
+        // 重连保护窗口内忽略 sync 消息：我们已经推送了本地最新状态
+        // 避免服务器回响或其他客户端的旧数据覆盖本地修改
+        if (isReconnecting) {
+          console.log('[Sync] 重连保护窗口内忽略 sync')
+          return
+        }
         // 标记正在接收，阻止本地订阅回推
         isReceiving = true
         onSync(msg.data)
@@ -136,6 +158,11 @@ function scheduleReconnect(
 /** 注册连接状态回调 */
 export function onConnectionChange(cb: (connected: boolean) => void) {
   connectionCallback = cb
+}
+
+/** 注册状态获取器，用于重连时推送本地最新状态 */
+export function setSyncStateProvider(fn: () => SyncData) {
+  getFullState = fn
 }
 
 /** 当前是否已连接 */

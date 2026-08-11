@@ -66,10 +66,8 @@ app.post('/api/reset', (req, res) => {
 wss.on('connection', (ws) => {
   console.log(`[WS] 客户端已连接，当前在线: ${wss.clients.size}`)
 
-  // 新连接时发送当前服务器数据
-  if (serverData) {
-    ws.send(JSON.stringify({ type: 'sync', data: serverData }))
-  }
+  // 不再在新连接时自动推送服务器数据——防止重连时用旧数据覆盖客户端本地修改。
+  // 改为由客户端在连接成功后主动推送自己的最新状态。
 
   ws.on('message', (raw) => {
     try {
