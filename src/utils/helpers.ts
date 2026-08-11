@@ -370,26 +370,37 @@ export interface ProjectQualityScore {
   status: string
   contactName: string
   monthlyFee: number | string
-  // 上月核心指标
+  // 本月指标
+  currentMonth: string
+  currentMonthPlanned: number
+  currentMonthCompleted: number
+  currentMonthCompletionRate: number  // 0-1
+  // 上月指标
   lastMonth: string
   lastMonthPlanned: number
   lastMonthCompleted: number
-  completionRate: number        // 0-1
+  completionRate: number             // 0-1（上月）
   lastMonthReceivable: number
   lastMonthReceived: number
-  paymentRate: number           // 0-1
-  staffCount: number            // 非组长参与人数
-  consecutiveMonths: number     // 连续合作月数
+  paymentRate: number               // 0-1（上月）
+  staffCount: number
+  consecutiveMonths: number
+  // 2026全年指标
+  yearTotalReceivable: number       // 全年应收
+  yearTotalReceived: number         // 全年已收
+  yearPaymentRate: number           // 0-1
+  yearPerStaffRevenue: number       // 全年人均产值
   // 各维度得分
-  totalPriceScore: number       // 总价 0-30（月费总额 vs 全局最高）
-  unitPriceScore: number        // 单价 0-30（月费÷产出 vs 全局均价）
-  cooperationScore: number      // 稳定力 0-20（按合作时长分级：首次/磨合/成长/稳定/深度）
-  paymentScore: number          // 回款 0-10
-  roiScore: number              // 回报 0-10
-  totalScore: number            // 0-100
+  currentMonthScore: number         // 本月完成率 0-10
+  lastMonthScore: number            // 上月完成率 0-8
+  yearPaymentScore: number          // 全年回款 0-9
+  yearRoiScore: number              // 历史回报 0-8
+  totalPriceScore: number           // 总价 0-25
+  unitPriceScore: number            // 单价 0-25
+  cooperationScore: number          // 稳定力 0-15
+  totalScore: number                // 0-100
   tier: '优质' | '良好' | '一般' | '劣质'
-  tierOrder: number             // 用于排序：3=优质 2=良好 1=一般 0=劣质
-  // 备注
+  tierOrder: number
   warnings: string[]
 }
 
@@ -453,6 +464,12 @@ export function calcProjectQualityRanking(
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
   })()
 
+  // 本月（实际当前月）
+  const currentMonth = (() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })()
+
   // 先收集所有项目的原始指标
   const rawData = safeProjects
     .filter((p) => p) // 过滤空值
@@ -500,6 +517,29 @@ export function calcProjectQualityRanking(
       // 月费（数值化）
       const feeNum = Number(p.monthlyFee) || 0
 
+      // 本月数据
+      const currentRecords = safeRecords.filter(
+        (r) => r.projectId === p.id && r.yearMonth === currentMonth
+      )
+      const currentMonthPlanned = currentRecords.reduce((s, r) => s + (r.plannedCount || 0), 0)
+      const currentMonthCompleted = currentRecords.reduce((s, r) => s + (r.completedCount || 0), 0)
+      const currentMonthCompletionRate = currentMonthPlanned > 0
+        ? currentMonthCompleted / currentMonthPlanned
+        : (currentMonthCompleted > 0 ? 1 : 0)
+
+      // 2026年全年数据
+      const year2026Records = safeRecords.filter(
+        (r) => r.projectId === p.id && r.yearMonth >= '2026-01' && r.yearMonth <= evalMonth
+      )
+      const yearPayable = year2026Records.filter((r) => r.paymentStatus !== '不付')
+      const yearTotalReceivable = yearPayable.reduce((s, r) => s + (r.paymentAmount || 0), 0)
+      const yearTotalReceived = yearPayable.reduce((s, r) => {
+        if (r.paymentStatus === '已收') return s + (r.paymentAmount || 0)
+        if (r.paymentStatus === '部分收') return s + (r.paidAmount || 0)
+        return s
+      }, 0)
+      const yearPaymentRate = yearTotalReceivable > 0 ? yearTotalReceived / yearTotalReceivable : 0
+
       return {
         projectId: p.id,
         projectName: p.name,
@@ -509,6 +549,10 @@ export function calcProjectQualityRanking(
         contactName: p.contactName || '',
         monthlyFee: p.monthlyFee,
         feeNum,
+        currentMonth,
+        currentMonthPlanned,
+        currentMonthCompleted,
+        currentMonthCompletionRate,
         lastMonth: evalMonth,
         lastMonthPlanned,
         lastMonthCompleted,
@@ -518,23 +562,24 @@ export function calcProjectQualityRanking(
         paymentRate,
         staffCount,
         consecutiveMonths,
+        yearTotalReceivable,
+        yearTotalReceived,
+        yearPaymentRate,
         hasIssue,
         isPaused: p.status === '暂停',
         isTerminated: p.status === '已终止',
       }
     })
 
-  // 全局基准值（用于回报力标准化）
-  const totalReceived = rawData.reduce((s, d) => s + d.lastMonthReceived, 0)
-  const totalStaff = rawData.reduce((s, d) => s + Math.max(d.staffCount, 1), 0)
-  const avgPerStaffRevenue = totalStaff > 0 ? totalReceived / totalStaff : 0
-
-  // 全局最大月费（用于收入力标准化）
+  // 全局最大月费（用于总价标准化）
   const maxFee = Math.max(...rawData.map((d) => d.feeNum), 1)
 
-  // 计算评分
-  const warnings: string[] = []
+  // 2026年全局基准值
+  const yearTotalReceivedGlobal = rawData.reduce((s, d) => s + d.yearTotalReceived, 0)
+  const yearTotalStaffGlobal = rawData.reduce((s, d) => s + Math.max(d.staffCount, 1), 0)
+  const yearAvgPerStaff = yearTotalStaffGlobal > 0 ? yearTotalReceivedGlobal / yearTotalStaffGlobal : 0
 
+  // 计算评分
   return rawData
     .map((d) => {
       const w: string[] = []
@@ -542,12 +587,37 @@ export function calcProjectQualityRanking(
       // 已终止项目：总分直接归零（不参与排名）
       if (d.isTerminated) {
         return {
-          ...d,
+          projectId: d.projectId,
+          projectName: d.projectName,
+          groupName: d.groupName,
+          groupId: d.groupId,
+          status: d.status,
+          contactName: d.contactName,
+          monthlyFee: d.monthlyFee,
+          currentMonth: d.currentMonth,
+          currentMonthPlanned: d.currentMonthPlanned,
+          currentMonthCompleted: d.currentMonthCompleted,
+          currentMonthCompletionRate: d.currentMonthCompletionRate,
+          lastMonth: d.lastMonth,
+          lastMonthPlanned: d.lastMonthPlanned,
+          lastMonthCompleted: d.lastMonthCompleted,
+          completionRate: d.completionRate,
+          lastMonthReceivable: d.lastMonthReceivable,
+          lastMonthReceived: d.lastMonthReceived,
+          paymentRate: d.paymentRate,
+          staffCount: d.staffCount,
+          consecutiveMonths: d.consecutiveMonths,
+          yearTotalReceivable: d.yearTotalReceivable,
+          yearTotalReceived: d.yearTotalReceived,
+          yearPaymentRate: d.yearPaymentRate,
+          yearPerStaffRevenue: d.staffCount > 0 ? d.yearTotalReceived / d.staffCount : d.yearTotalReceived,
+          currentMonthScore: 0,
+          lastMonthScore: 0,
+          yearPaymentScore: 0,
+          yearRoiScore: 0,
           totalPriceScore: 0,
           unitPriceScore: 0,
           cooperationScore: 0,
-          paymentScore: 0,
-          roiScore: 0,
           totalScore: 0,
           tier: '劣质' as const,
           tierOrder: 0,
@@ -555,57 +625,95 @@ export function calcProjectQualityRanking(
         }
       }
 
-      // === 1. 总价 (30分) ===
-      // 月费总额与全局最高月费的比值 × 30
-      let totalPriceScore = maxFee > 0 ? (d.feeNum / maxFee) * 30 : 0
+      // === 1. 本月完成率 (10分) ===
+      let currentMonthScore: number
+      if (d.currentMonthPlanned === 0) {
+        currentMonthScore = d.currentMonthCompleted > 0 ? 8 : 5  // 无计划按实际产出给分
+        if (d.currentMonthCompleted === 0) w.push('本月无计划数据')
+      } else {
+        currentMonthScore = Math.min(d.currentMonthCompletionRate * 10, 10)
+      }
+      currentMonthScore = Math.round(currentMonthScore * 10) / 10
+
+      // === 2. 上月完成率 (8分) ===
+      let lastMonthScore: number
+      if (d.lastMonthPlanned === 0) {
+        lastMonthScore = d.lastMonthCompleted > 0 ? 6 : 4
+        if (d.lastMonthCompleted === 0) w.push('上月无计划数据')
+      } else {
+        lastMonthScore = Math.min(d.completionRate * 8, 8)
+      }
+      lastMonthScore = Math.round(lastMonthScore * 10) / 10
+
+      // === 3. 全年回款 (9分) ===
+      let yearPaymentScore: number
+      if (d.yearTotalReceivable === 0) {
+        yearPaymentScore = 5  // 全年无应收，默认中等偏低
+      } else {
+        yearPaymentScore = d.yearPaymentRate * 9
+      }
+      yearPaymentScore = Math.round(yearPaymentScore * 10) / 10
+
+      // === 4. 历史回报 (8分) ===
+      const yearPerStaff = d.staffCount > 0 ? d.yearTotalReceived / d.staffCount : d.yearTotalReceived
+      let yearRoiScore = yearAvgPerStaff > 0
+        ? Math.min((yearPerStaff / yearAvgPerStaff) * 5, 8)  // 达均值得5分，1.6倍满分
+        : 4
+      if (d.staffCount === 0) {
+        yearRoiScore = Math.min(yearRoiScore, 4)
+        w.push('未分配运营人员')
+      }
+      if (d.yearTotalReceived === 0 && d.yearTotalReceivable > 0) {
+        yearRoiScore = Math.min(yearRoiScore, 2)
+        w.push('全年款项均未收回')
+      }
+      yearRoiScore = Math.round(yearRoiScore * 10) / 10
+
+      // === 5. 总价 (25分) ===
+      let totalPriceScore = maxFee > 0 ? (d.feeNum / maxFee) * 25 : 0
       if (d.feeNum === 0 && typeof d.monthlyFee === 'string') {
-        totalPriceScore = 9 // 提成制/无固定费用给基础分
+        totalPriceScore = 8
         w.push('无固定月费（提成制）')
       }
       if (d.feeNum === 0 && typeof d.monthlyFee === 'number') {
-        totalPriceScore = 6
+        totalPriceScore = 5
         w.push('月费为0')
       }
       totalPriceScore = Math.round(totalPriceScore * 10) / 10
 
-      // === 2. 单价 (30分) ===
-      // 单价 = 月费 ÷ 上月产出（视频数量），与全局均价对比
-      // 产量为0时按保底分算
+      // === 6. 单价 (25分) ===
       let unitPriceScore: number
       const output = d.lastMonthCompleted > 0 ? d.lastMonthCompleted : 0
       if (output > 0 && d.feeNum > 0) {
         const unitPrice = d.feeNum / output
-        // 全局有效均价（排除产出为0的项目）
         const validData = rawData.filter((x) => x.lastMonthCompleted > 0 && x.feeNum > 0)
         const avgUnitPrice = validData.length > 0
           ? validData.reduce((s, x) => s + x.feeNum / x.lastMonthCompleted, 0) / validData.length
           : unitPrice
-        // 单价达到均值得18分，2倍均价满分30分
         unitPriceScore = avgUnitPrice > 0
-          ? Math.min((unitPrice / avgUnitPrice) * 18, 30)
-          : 15
+          ? Math.min((unitPrice / avgUnitPrice) * 15, 25)
+          : 12.5
       } else if (d.feeNum > 0 && output === 0) {
-        unitPriceScore = 10 // 有月费但上月无产出
+        unitPriceScore = 8
         w.push('上月无视频产出')
       } else {
-        unitPriceScore = 8 // 提成制且无产出
+        unitPriceScore = 6
       }
       unitPriceScore = Math.round(unitPriceScore * 10) / 10
 
-      // === 3. 稳定力 (20分) ===
-      // 按连续合作月数分级打分，长期合作价值更高
+      // === 7. 稳定力 (15分) ===
       const months = d.consecutiveMonths
       let cooperationScore: number
       if (months <= 1) {
-        cooperationScore = 4
+        cooperationScore = 3
       } else if (months <= 3) {
-        cooperationScore = 10
+        cooperationScore = 7
       } else if (months <= 6) {
-        cooperationScore = 15
+        cooperationScore = 10
       } else if (months <= 11) {
-        cooperationScore = 18
+        cooperationScore = 13
       } else {
-        cooperationScore = 20
+        cooperationScore = 15
       }
       if (d.isPaused) {
         cooperationScore = Math.max(cooperationScore - 3, 0)
@@ -617,35 +725,10 @@ export function calcProjectQualityRanking(
       }
       cooperationScore = Math.round(cooperationScore * 10) / 10
 
-      // === 4. 回款 (10分) ===
-      let paymentScore: number
-      if (d.lastMonthReceivable === 0) {
-        paymentScore = 7 // 无应收，默认中等
-        w.push('上月无应收款')
-      } else {
-        paymentScore = d.paymentRate * 10
-      }
-      paymentScore = Math.round(paymentScore * 10) / 10
-
-      // === 5. 回报 (10分) ===
-      // 人均产值 = 上月已收 / 参与人数，与全局人均产值对比
-      const perStaff = d.staffCount > 0 ? d.lastMonthReceived / d.staffCount : d.lastMonthReceived
-      let roiScore = avgPerStaffRevenue > 0
-        ? Math.min((perStaff / avgPerStaffRevenue) * 6, 10) // 达到均值得6分，1.67倍人均满分
-        : 5
-      if (d.staffCount === 0) {
-        roiScore = Math.min(roiScore, 5) // 无人分配，最多5分
-        w.push('未分配运营人员')
-      }
-      if (d.lastMonthReceived === 0 && d.lastMonthReceivable > 0) {
-        roiScore = Math.min(roiScore, 3) // 有应收但没收到钱
-        w.push('上月款项未收回')
-      }
-      roiScore = Math.round(roiScore * 10) / 10
-
       // === 总分 ===
       const totalScore = Math.round(
-        (totalPriceScore + unitPriceScore + cooperationScore + paymentScore + roiScore) * 10
+        (currentMonthScore + lastMonthScore + yearPaymentScore + yearRoiScore
+         + totalPriceScore + unitPriceScore + cooperationScore) * 10
       ) / 10
 
       // === 分档 ===
@@ -664,6 +747,10 @@ export function calcProjectQualityRanking(
         status: d.status,
         contactName: d.contactName,
         monthlyFee: d.monthlyFee,
+        currentMonth: d.currentMonth,
+        currentMonthPlanned: d.currentMonthPlanned,
+        currentMonthCompleted: d.currentMonthCompleted,
+        currentMonthCompletionRate: d.currentMonthCompletionRate,
         lastMonth: d.lastMonth,
         lastMonthPlanned: d.lastMonthPlanned,
         lastMonthCompleted: d.lastMonthCompleted,
@@ -673,11 +760,17 @@ export function calcProjectQualityRanking(
         paymentRate: d.paymentRate,
         staffCount: d.staffCount,
         consecutiveMonths: d.consecutiveMonths,
+        yearTotalReceivable: d.yearTotalReceivable,
+        yearTotalReceived: d.yearTotalReceived,
+        yearPaymentRate: d.yearPaymentRate,
+        yearPerStaffRevenue: d.staffCount > 0 ? d.yearTotalReceived / d.staffCount : d.yearTotalReceived,
+        currentMonthScore,
+        lastMonthScore,
+        yearPaymentScore,
+        yearRoiScore,
         totalPriceScore,
         unitPriceScore,
         cooperationScore,
-        paymentScore,
-        roiScore,
         totalScore,
         tier,
         tierOrder,

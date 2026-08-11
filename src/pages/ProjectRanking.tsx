@@ -5,7 +5,7 @@ import {
   TrophyOutlined, RiseOutlined, StarOutlined,
   DollarOutlined, FireOutlined, TagsOutlined,
   SafetyCertificateOutlined, HistoryOutlined, WarningOutlined,
-  FilterOutlined, ArrowRightOutlined,
+  FilterOutlined, ArrowRightOutlined, CalendarOutlined, TeamOutlined,
 } from '@ant-design/icons'
 import { useStore } from '../store/useStore'
 import { calcProjectQualityRanking, formatMoney } from '../utils/helpers'
@@ -56,11 +56,13 @@ function getGroupColor(name: string): string {
 
 // 维度信息
 const dimensions = [
-  { key: 'totalPriceScore' as const, label: '总价', max: 30, icon: <DollarOutlined />, color: '#faad14', desc: '月费总收入规模' },
-  { key: 'unitPriceScore' as const, label: '单价', max: 30, icon: <TagsOutlined />, color: '#1677ff', desc: '月费÷产出 vs 全局均价' },
-  { key: 'cooperationScore' as const, label: '稳定力', max: 20, icon: <HistoryOutlined />, color: '#722ed1', desc: '合作时长价值（首次→深度）' },
-  { key: 'paymentScore' as const, label: '回款', max: 10, icon: <SafetyCertificateOutlined />, color: '#52c41a', desc: '回款健康度' },
-  { key: 'roiScore' as const, label: '回报', max: 10, icon: <FireOutlined />, color: '#f5222d', desc: '人均产值回报' },
+  { key: 'currentMonthScore' as const, label: '本月完成', max: 10, icon: <CalendarOutlined />, color: '#1677ff', desc: '本月计划完成率' },
+  { key: 'lastMonthScore' as const, label: '上月完成', max: 8, icon: <HistoryOutlined />, color: '#13c2c2', desc: '上月计划完成率' },
+  { key: 'yearPaymentScore' as const, label: '全年回款', max: 9, icon: <SafetyCertificateOutlined />, color: '#52c41a', desc: '2026年累计回款率' },
+  { key: 'yearRoiScore' as const, label: '历史回报', max: 8, icon: <FireOutlined />, color: '#f5222d', desc: '2026年人均产值' },
+  { key: 'totalPriceScore' as const, label: '总价', max: 25, icon: <DollarOutlined />, color: '#faad14', desc: '月费总收入规模' },
+  { key: 'unitPriceScore' as const, label: '单价', max: 25, icon: <TagsOutlined />, color: '#722ed1', desc: '月费÷产出 vs 全局均价' },
+  { key: 'cooperationScore' as const, label: '稳定力', max: 15, icon: <TeamOutlined />, color: '#eb2f96', desc: '合作时长价值（首次→深度）' },
 ]
 
 // 排行榜数字样式
@@ -316,7 +318,7 @@ export default function ProjectRanking() {
             </Tooltip>
           ))}
           <span style={{ color: '#8c8c8c' }}>
-            · 总分100 = 总价(30) + 单价(30) + 稳定力(20) + 回款(10) + 回报(10)
+            · 总分100 = 本月完成(10) + 上月完成(8) + 全年回款(9) + 历史回报(8) + 总价(25) + 单价(25) + 稳定力(15)
           </span>
         </div>
       </Card>
@@ -431,12 +433,14 @@ export default function ProjectRanking() {
       <Card size="small" style={{ marginTop: 16, borderRadius: 10, background: '#fffbe6', borderColor: '#ffe58f' }}>
         <div style={{ fontSize: 12, color: '#ad6800', lineHeight: 1.8 }}>
           <strong>评分规则：</strong><br />
-          · 基于上月（{evalMonth}）数据自动计算，每月更新<br />
-          · <strong>总价(30分)</strong>：月费总额 ÷ 全局最高月费 × 30，提成制给基础分9分<br />
-          · <strong>单价(30分)</strong>：月费 ÷ 上月产出视频数，与全局均价对比。达到均值得18分，2倍均价满分<br />
-          · <strong>稳定力(20分)</strong>：按连续合作月数分级 —— 首次(4分) / 磨合期2-3月(10分) / 成长期4-6月(15分) / 稳定期7-11月(18分) / 深度合作12+月(20分)，暂停-3、未解决问题-2<br />
-          · <strong>回款(10分)</strong>：上月回款比例 × 10，无应收默认7分<br />
-          · <strong>回报(10分)</strong>：人均产值 = 上月已收金额 ÷ 参与人数，与全局人均对比。达到均值得6分，1.67倍人均满分<br />
+          · 基于上月（{evalMonth}）和本月数据自动计算，每月更新<br />
+          · <strong>本月完成(10分)</strong>：本月计划完成率 × 10，无计划有产出8分<br />
+          · <strong>上月完成(8分)</strong>：上月计划完成率 × 8，无计划有产出6分<br />
+          · <strong>全年回款(9分)</strong>：2026年累计回款比例 × 9，无应收默认5分<br />
+          · <strong>历史回报(8分)</strong>：2026年人均产值 ÷ 全局人均 × 5，1.6倍满分<br />
+          · <strong>总价(25分)</strong>：月费总额 ÷ 全局最高月费 × 25，提成制基础8分<br />
+          · <strong>单价(25分)</strong>：月费 ÷ 上月产出，达全局均值得15分，1.67倍满分<br />
+          · <strong>稳定力(15分)</strong>：合作时长分级 —— 首次(3) / 磨合2-3月(7) / 成长4-6月(10) / 稳定7-11月(13) / 深度12+月(15)，暂停-3、问题-2<br />
           · 已终止项目不参与排名，总分归零
         </div>
       </Card>
