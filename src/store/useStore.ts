@@ -1,15 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot, LegacyReceivable } from '../types'
+import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot, LegacyReceivable, OneTimeProject } from '../types'
 import {
   initialStaff, initialGroups, initialProjects, initialAccounts,
   initialMonthlyRecords, initialLastMonthRecords, initialIssues, initialLeads,
-  initialMonthSnapshots, initialLegacyReceivables,
+  initialMonthSnapshots, initialLegacyReceivables, initialOneTimeProjects,
 } from '../data/mockData'
 import { extractSyncData, pushToServer } from '../utils/syncManager'
 
 // 需要同步的业务数据字段
-const SYNC_KEYS = ['staff', 'groups', 'projects', 'accounts', 'monthlyRecords', 'issues', 'leads', 'monthSnapshots', 'staffSalaries', 'legacyReceivables'] as const
+const SYNC_KEYS = ['staff', 'groups', 'projects', 'accounts', 'monthlyRecords', 'issues', 'leads', 'monthSnapshots', 'staffSalaries', 'legacyReceivables', 'oneTimeProjects'] as const
 
 /** 规范化数据：确保所有数组字段有效，防止 undefined 导致崩溃 */
 function normalizeProjects(projects: unknown): Project[] {
@@ -106,6 +106,7 @@ interface AppState {
   monthSnapshots: MonthPaymentSnapshot[]
   staffSalaries: Record<string, number> // 员工上月工资 { staffId: salary }
   legacyReceivables: LegacyReceivable[]
+  oneTimeProjects: OneTimeProject[]
 
   // 选中状态
   selectedMonth: string
@@ -130,6 +131,11 @@ interface AppState {
   addLegacyReceivable: (item: Omit<LegacyReceivable, 'id'>) => void
   updateLegacyReceivable: (id: string, updates: Partial<LegacyReceivable>) => void
   deleteLegacyReceivable: (id: string) => void
+
+  // 单次项目操作
+  addOneTimeProject: (item: Omit<OneTimeProject, 'id' | 'createdAt'>) => void
+  updateOneTimeProject: (id: string, updates: Partial<OneTimeProject>) => void
+  deleteOneTimeProject: (id: string) => void
 
   // 项目操作
   addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => string
@@ -199,6 +205,7 @@ export const useStore = create<AppState>()(
       monthSnapshots: initialMonthSnapshots,
       staffSalaries: {},
       legacyReceivables: initialLegacyReceivables,
+      oneTimeProjects: initialOneTimeProjects,
 
       selectedMonth: currentMonth,
       setSelectedMonth: (month: string) => set({ selectedMonth: month }),
@@ -223,6 +230,15 @@ export const useStore = create<AppState>()(
         set((s) => ({ legacyReceivables: s.legacyReceivables.map((x) => (x.id === id ? { ...x, ...updates } : x)) })),
       deleteLegacyReceivable: (id) =>
         set((s) => ({ legacyReceivables: s.legacyReceivables.filter((x) => x.id !== id) })),
+
+      addOneTimeProject: (item) => {
+        const now = new Date().toISOString()
+        set((s) => ({ oneTimeProjects: [...s.oneTimeProjects, { ...item, id: genId('ot'), createdAt: now }] }))
+      },
+      updateOneTimeProject: (id, updates) =>
+        set((s) => ({ oneTimeProjects: s.oneTimeProjects.map((x) => (x.id === id ? { ...x, ...updates } : x)) })),
+      deleteOneTimeProject: (id) =>
+        set((s) => ({ oneTimeProjects: s.oneTimeProjects.filter((x) => x.id !== id) })),
 
       addProject: (project) => {
         const id = genId('p')
@@ -507,6 +523,7 @@ export const useStore = create<AppState>()(
           monthSnapshots: initialMonthSnapshots,
           staffSalaries: {},
           legacyReceivables: initialLegacyReceivables,
+          oneTimeProjects: initialOneTimeProjects,
         }),
 
       // ===== 实时同步 =====
@@ -534,10 +551,13 @@ export const useStore = create<AppState>()(
           legacyReceivables: Array.isArray(data.legacyReceivables)
             ? data.legacyReceivables as LegacyReceivable[]
             : get().legacyReceivables,
+          oneTimeProjects: Array.isArray(data.oneTimeProjects)
+            ? data.oneTimeProjects as OneTimeProject[]
+            : get().oneTimeProjects,
         })
       },
     }),
-    { name: 'sanhe-dashboard-data-v11', version: 11,
+    { name: 'sanhe-dashboard-data-v12', version: 12,
       // 数据恢复时的规范化处理：确保所有数组字段有效，防止 undefined 导致崩溃
       onRehydrateStorage: () => (state) => {
         if (!state) return
@@ -563,6 +583,7 @@ export const useStore = create<AppState>()(
         if (!Array.isArray(state.monthSnapshots)) state.monthSnapshots = initialMonthSnapshots
         if (!state.staffSalaries || typeof state.staffSalaries !== 'object') state.staffSalaries = {}
         if (!Array.isArray(state.legacyReceivables)) state.legacyReceivables = initialLegacyReceivables
+        if (!Array.isArray(state.oneTimeProjects)) state.oneTimeProjects = initialOneTimeProjects
         // 规范化 staff：确保 roles 是数组
         if (Array.isArray(state.staff)) {
           state.staff = state.staff.map((s) => ({

@@ -1,4 +1,4 @@
-import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot, LegacyReceivable } from '../types'
+import type { Staff, Group, Project, Account, MonthlyRecord, Issue, Lead, MonthPaymentSnapshot, LegacyReceivable, OneTimeProject } from '../types'
 
 const now = new Date().toISOString()
 const currentMonth = new Date().toISOString().slice(0, 7) // '2026-08'
@@ -371,4 +371,26 @@ export const initialLegacyReceivables: LegacyReceivable[] = [
   { id: 'lr3', projectName: '筑城栖悦', contactName: '何阳锐', personInCharge: '程杰', amount: 6348, acceptanceDate: '2026-07-02' },
   { id: 'lr4', projectName: '艺途旅行', contactName: '蔡师', personInCharge: '周云飞', amount: 9000, acceptanceDate: '2026-05-01' },
   { id: 'lr5', projectName: '夹江市民中心', contactName: '干总', personInCharge: '周云飞', amount: 0, acceptanceDate: '2025-10-31' },
+]
+
+// ===== 单次项目 =====
+export const initialOneTimeProjects: OneTimeProject[] = [
+  {
+    id: 'ot1', name: '成都米线首批拍摄', contactName: '鹏哥', groupId: 'A',
+    staffIds: ['s1', 's4'], fee: 3600, paymentDate: '2026-08-15',
+    status: '待收款', notes: '首批6条，已完成交付',
+    createdAt: '2026-08-01',
+  },
+  {
+    id: 'ot2', name: '喜灶食品厂宣传片', contactName: '滕总', groupId: 'B',
+    staffIds: ['s4', 's5', 's6'], fee: 6000, paymentDate: '2026-08-16',
+    status: '已收款', notes: '先付50%，尾款8月16日',
+    createdAt: '2026-08-01',
+  },
+  {
+    id: 'ot3', name: '强哥热卤探店', contactName: '杨总', groupId: 'C',
+    staffIds: ['s7', 's8', 's9'], fee: 4000, paymentDate: '2026-08-20',
+    status: '待收款', notes: '首批10条，等脚本定稿',
+    createdAt: '2026-08-05',
+  },
 ]

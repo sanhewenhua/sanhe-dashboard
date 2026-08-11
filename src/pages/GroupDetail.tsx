@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Table, Tag, Button, Input, InputNumber, Select, Progress, Space, Tooltip, Popconfirm, message, Row, Col, Modal, Form, DatePicker } from 'antd'
-import { PlusOutlined, MinusOutlined, EditOutlined, FileTextOutlined, DeleteOutlined } from '@ant-design/icons'
+import { Card, Table, Tag, Button, Input, InputNumber, Select, Progress, Space, Tooltip, Popconfirm, message, Row, Col, Modal, Form, DatePicker, Collapse } from 'antd'
+import { PlusOutlined, MinusOutlined, EditOutlined, FileTextOutlined, DeleteOutlined, ThunderboltOutlined, CaretRightOutlined } from '@ant-design/icons'
 import { useStore } from '../store/useStore'
 import { calcProjectMonthData, formatMoney, getStaffNames, issueTypeColors } from '../utils/helpers'
 import { exportToExcel } from '../utils/excel'
 import StaffSelect from '../components/StaffSelect'
-import type { MonthlyRecord, IssueType } from '../types'
+import type { MonthlyRecord, IssueType, OneTimeProject } from '../types'
 import dayjs from 'dayjs'
 
 export default function GroupDetail() {
@@ -16,6 +16,7 @@ export default function GroupDetail() {
     projects, accounts, monthlyRecords, issues, staff, groups,
     selectedMonth, setSelectedMonth, updateMonthlyRecord, incrementCompleted,
     addIssue, addProject, deleteProject, updateProject,
+    oneTimeProjects, addOneTimeProject, updateOneTimeProject, deleteOneTimeProject,
   } = useStore()
 
   const [editingRecord, setEditingRecord] = useState<string | null>(null)
@@ -23,6 +24,9 @@ export default function GroupDetail() {
   const [newIssue, setNewIssue] = useState<{ type: IssueType; desc: string }>({ type: '限流', desc: '' })
   const [addProjectModalOpen, setAddProjectModalOpen] = useState(false)
   const [projectForm] = Form.useForm()
+  const [otModalOpen, setOtModalOpen] = useState(false)
+  const [editingOtId, setEditingOtId] = useState<string | null>(null)
+  const [otForm] = Form.useForm()
   const isMobile = window.innerWidth <= 768
 
   const group = groups.find((g) => g.id === groupId)
@@ -117,6 +121,43 @@ export default function GroupDetail() {
     deleteProject(projectId)
     message.success(`「${projectName}」已删除`)
   }
+
+  const handleOpenOtNew = () => {
+    setEditingOtId(null)
+    otForm.resetFields()
+    setOtModalOpen(true)
+  }
+  const handleOpenOtEdit = (item: OneTimeProject) => {
+    setEditingOtId(item.id)
+    otForm.setFieldsValue({
+      ...item,
+      paymentDate: item.paymentDate ? dayjs(item.paymentDate) : undefined,
+    })
+    setOtModalOpen(true)
+  }
+  const handleSaveOt = () => {
+    otForm.validateFields().then((values) => {
+      const data = {
+        ...values,
+        paymentDate: values.paymentDate ? dayjs(values.paymentDate).format('YYYY-MM-DD') : '',
+      }
+      if (editingOtId) {
+        updateOneTimeProject(editingOtId, data)
+        message.success('已更新')
+      } else {
+        addOneTimeProject({ ...data, groupId })
+        message.success('单次项目已添加')
+      }
+      otForm.resetFields()
+      setOtModalOpen(false)
+    })
+  }
+  const handleDeleteOt = (id: string, name: string) => {
+    deleteOneTimeProject(id)
+    message.success(`「${name}」已删除`)
+  }
+
+  const groupOneTimeProjects = oneTimeProjects.filter((ot) => ot.groupId === groupId)
 
   const columns = [
     {
@@ -338,6 +379,130 @@ export default function GroupDetail() {
         rowClassName={(record: any) => record.projectIssues.length > 0 ? 'has-issue' : ''}
       />
 
+      {/* 单次项目区块 */}
+      <Card
+        size="small"
+        style={{ marginTop: 16 }}
+        title={
+          <span style={{ fontSize: 15, fontWeight: 700 }}>
+            <ThunderboltOutlined style={{ marginRight: 6, color: '#fa8c16' }} />
+            单次项目
+            {groupOneTimeProjects.length > 0 && (
+              <Tag color="orange" style={{ marginLeft: 8 }}>{groupOneTimeProjects.length}</Tag>
+            )}
+          </span>
+        }
+        extra={
+          <Button size="small" type="primary" icon={<PlusOutlined />} onClick={handleOpenOtNew}>
+            添加单次项目
+          </Button>
+        }
+      >
+        {groupOneTimeProjects.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#bfbfbf', padding: 40 }}>暂无单次项目，点击上方按钮添加</div>
+        ) : (
+          <Table
+            dataSource={groupOneTimeProjects}
+            rowKey="id"
+            size="small"
+            pagination={false}
+            columns={[
+              {
+                title: '项目名', dataIndex: 'name', width: 140,
+                render: (v: string, record) => (
+                  <Input
+                    size="small" variant="borderless"
+                    value={v} style={{ fontWeight: 600, padding: '2px 4px' }}
+                    onChange={(e) => updateOneTimeProject(record.id, { name: e.target.value })}
+                  />
+                ),
+              },
+              {
+                title: '对接人', dataIndex: 'contactName', width: 80,
+                render: (v: string, record) => (
+                  <Input
+                    size="small" variant="borderless"
+                    value={v} style={{ padding: '2px 4px' }}
+                    onChange={(e) => updateOneTimeProject(record.id, { contactName: e.target.value })}
+                  />
+                ),
+              },
+              {
+                title: '参与人员', dataIndex: 'staffIds', width: 150,
+                render: (ids: string[], record) => (
+                  <Select
+                    mode="multiple" size="small" variant="borderless"
+                    value={ids} style={{ width: '100%', minWidth: 120 }}
+                    onChange={(val) => updateOneTimeProject(record.id, { staffIds: val })}
+                    options={activeStaff.map((s) => ({ label: s.name, value: s.id }))}
+                  />
+                ),
+              },
+              {
+                title: '费用', dataIndex: 'fee', width: 90,
+                render: (v: number, record) => (
+                  <InputNumber
+                    size="small" variant="borderless"
+                    value={v} min={0} style={{ width: '100%' }}
+                    onChange={(val) => updateOneTimeProject(record.id, { fee: val ?? 0 })}
+                  />
+                ),
+              },
+              {
+                title: '回款时间', dataIndex: 'paymentDate', width: 120,
+                render: (v: string, record) => (
+                  <DatePicker
+                    size="small" variant="borderless"
+                    value={v ? dayjs(v) : undefined}
+                    style={{ width: '100%' }}
+                    onChange={(d) => updateOneTimeProject(record.id, { paymentDate: d ? d.format('YYYY-MM-DD') : '' })}
+                  />
+                ),
+              },
+              {
+                title: '状态', dataIndex: 'status', width: 90,
+                render: (v: string, record) => (
+                  <Select
+                    size="small" variant="borderless"
+                    value={v}
+                    style={{ width: '100%' }}
+                    onChange={(val) => updateOneTimeProject(record.id, { status: val as OneTimeProject['status'] })}
+                    options={[
+                      { label: '待收款', value: '待收款' },
+                      { label: '已收款', value: '已收款' },
+                    ]}
+                  />
+                ),
+              },
+              {
+                title: '备注', dataIndex: 'notes', width: 150,
+                render: (v: string | undefined, record) => (
+                  <Input
+                    size="small" variant="borderless"
+                    value={v || ''} style={{ padding: '2px 4px', fontSize: 12 }}
+                    placeholder="备注"
+                    onChange={(e) => updateOneTimeProject(record.id, { notes: e.target.value })}
+                  />
+                ),
+              },
+              {
+                title: '操作', width: 60, fixed: 'right' as const,
+                render: (_, record) => (
+                  <Popconfirm
+                    title="确定删除？"
+                    onConfirm={() => handleDeleteOt(record.id, record.name)}
+                    okText="删除" cancelText="取消"
+                    okButtonProps={{ danger: true }}
+                  >
+                    <Button size="small" type="text" danger icon={<DeleteOutlined />} />
+                  </Popconfirm>
+                ),
+              },
+            ]}
+          />
+        )}
+      </Card>
+
       {/* 问题录入弹窗 */}
       <Modal
         title="记录问题"
@@ -458,6 +623,58 @@ export default function GroupDetail() {
           </Row>
           <Form.Item name="editorIds" label="剪辑">
             <StaffSelect staff={activeStaff} isMobile={isMobile} placeholder="选择剪辑" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 新增/编辑单次项目 Modal */}
+      <Modal
+        title={editingOtId ? '编辑单次项目' : '新增单次项目'}
+        open={otModalOpen}
+        onOk={handleSaveOt}
+        onCancel={() => { setOtModalOpen(false); otForm.resetFields() }}
+        width={isMobile ? '95%' : 500}
+      >
+        <Form form={otForm} layout="vertical" initialValues={{ status: '待收款' }}>
+          <Form.Item name="name" label="项目名称" rules={[{ required: true, message: '请输入' }]}>
+            <Input placeholder="如：企业宣传片拍摄" />
+          </Form.Item>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item name="contactName" label="对接人" rules={[{ required: true, message: '请输入' }]}>
+                <Input placeholder="如：王总" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="fee" label="费用" rules={[{ required: true, message: '请输入' }]}>
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="如：5000" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item name="paymentDate" label="回款时间">
+                <DatePicker style={{ width: '100%' }} placeholder="选择日期" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="status" label="收款状态">
+                <Select options={[
+                  { label: '待收款', value: '待收款' },
+                  { label: '已收款', value: '已收款' },
+                ]} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="staffIds" label="参与人员" rules={[{ required: true, message: '请选择' }]}>
+            <Select
+              mode="multiple"
+              placeholder="选择参与人员"
+              options={activeStaff.map((s) => ({ label: `${s.name} (${s.roles.join('/')})`, value: s.id }))}
+            />
+          </Form.Item>
+          <Form.Item name="notes" label="备注">
+            <Input.TextArea rows={2} placeholder="如：首批6条，已完成交付" />
           </Form.Item>
         </Form>
       </Modal>

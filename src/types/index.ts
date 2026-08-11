@@ -138,6 +138,22 @@ export interface LegacyReceivable {
   amount: number // 费用，0 表示待定
   acceptanceDate: string // 验收时间
 }
+// ===== 单次项目 =====
+export type OneTimeStatus = '待收款' | '已收款'
+
+export interface OneTimeProject {
+  id: string
+  name: string           // 项目名字
+  contactName: string     // 对接人
+  groupId: string         // 负责组
+  staffIds: string[]      // 参与人员
+  fee: number             // 费用
+  paymentDate: string     // 回款时间 (YYYY-MM-DD)
+  status: OneTimeStatus
+  notes?: string          // 备注
+  createdAt: string
+}
+
 export interface ProjectWithDetails extends Project {
   accounts: Account[]
   currentMonthRecords: MonthlyRecord[]
