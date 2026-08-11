@@ -381,11 +381,11 @@ export interface ProjectQualityScore {
   staffCount: number            // 非组长参与人数
   consecutiveMonths: number     // 连续合作月数
   // 各维度得分
-  revenueScore: number          // 收入力 0-25
-  executionScore: number        // 执行力 0-25
-  roiScore: number              // 回报力 0-25
+  revenueScore: number          // 收入力 0-20
+  executionScore: number        // 执行力 0-20
+  roiScore: number              // 回报力 0-20
   paymentScore: number          // 回款力 0-15
-  stabilityScore: number        // 稳定力 0-10
+  cooperationScore: number      // 合作力 0-25（按合作时长分级：首次/磨合/成长/稳定/深度）
   totalScore: number            // 0-100
   tier: '优质' | '良好' | '一般' | '劣质'
   tierOrder: number             // 用于排序：3=优质 2=良好 1=一般 0=劣质
@@ -547,7 +547,7 @@ export function calcProjectQualityRanking(
           executionScore: 0,
           roiScore: 0,
           paymentScore: 0,
-          stabilityScore: 0,
+          cooperationScore: 0,
           totalScore: 0,
           tier: '劣质' as const,
           tierOrder: 0,
@@ -555,40 +555,40 @@ export function calcProjectQualityRanking(
         }
       }
 
-      // === 1. 收入力 (25分) ===
-      // 月费与全局最高月费的比值 × 25
-      let revenueScore = maxFee > 0 ? (d.feeNum / maxFee) * 25 : 0
+      // === 1. 收入力 (20分) ===
+      // 月费与全局最高月费的比值 × 20
+      let revenueScore = maxFee > 0 ? (d.feeNum / maxFee) * 20 : 0
       if (d.feeNum === 0 && typeof d.monthlyFee === 'string') {
-        revenueScore = 8 // 提成制/无固定费用给基础分
+        revenueScore = 6 // 提成制/无固定费用给基础分
         w.push('无固定月费（提成制）')
       }
       if (d.feeNum === 0 && typeof d.monthlyFee === 'number') {
-        revenueScore = 5
+        revenueScore = 4
         w.push('月费为0')
       }
       revenueScore = Math.round(revenueScore * 10) / 10
 
-      // === 2. 执行力 (25分) ===
-      // 上月完成率 × 25。无计划数据按50%算
+      // === 2. 执行力 (20分) ===
+      // 上月完成率 × 20。无计划数据按50%算
       let effectiveRate = d.completionRate
       if (d.lastMonthPlanned === 0) {
         effectiveRate = d.lastMonthCompleted > 0 ? 1 : 0.5
         if (d.lastMonthCompleted === 0) w.push('上月无计划数据')
       }
-      const executionScore = Math.round(Math.min(effectiveRate * 25, 25) * 10) / 10
+      const executionScore = Math.round(Math.min(effectiveRate * 20, 20) * 10) / 10
 
-      // === 3. 回报力 (25分) ===
+      // === 3. 回报力 (20分) ===
       // 人均产值 = 上月已收 / 参与人数，与全局人均产值对比
       const perStaff = d.staffCount > 0 ? d.lastMonthReceived / d.staffCount : d.lastMonthReceived
       let roiScore = avgPerStaffRevenue > 0
-        ? Math.min((perStaff / avgPerStaffRevenue) * 15, 25) // 达到均值15分，2倍人均满分
-        : 12.5
+        ? Math.min((perStaff / avgPerStaffRevenue) * 12, 20) // 达到均值12分，1.67倍人均满分
+        : 10
       if (d.staffCount === 0) {
-        roiScore = Math.min(roiScore, 10) // 无人分配，最多10分
+        roiScore = Math.min(roiScore, 8) // 无人分配，最多8分
         w.push('未分配运营人员')
       }
       if (d.lastMonthReceived === 0 && d.lastMonthReceivable > 0) {
-        roiScore = Math.min(roiScore, 5) // 有应收但没收到钱
+        roiScore = Math.min(roiScore, 4) // 有应收但没收到钱
         w.push('上月款项未收回')
       }
       roiScore = Math.round(roiScore * 10) / 10
@@ -603,21 +603,40 @@ export function calcProjectQualityRanking(
       }
       paymentScore = Math.round(paymentScore * 10) / 10
 
-      // === 5. 稳定力 (10分) ===
-      let stabilityScore = Math.min(d.consecutiveMonths / 6 * 10, 10)
+      // === 5. 合作力 (25分) ===
+      // 按连续合作月数分级打分，长期合作价值更高
+      const months = d.consecutiveMonths
+      let cooperationScore: number
+      let coopLabel: string
+      if (months <= 1) {
+        cooperationScore = 5
+        coopLabel = '首次合作'
+      } else if (months <= 3) {
+        cooperationScore = 12
+        coopLabel = '磨合期'
+      } else if (months <= 6) {
+        cooperationScore = 18
+        coopLabel = '成长期'
+      } else if (months <= 11) {
+        cooperationScore = 22
+        coopLabel = '稳定期'
+      } else {
+        cooperationScore = 25
+        coopLabel = '深度合作'
+      }
       if (d.isPaused) {
-        stabilityScore = Math.max(stabilityScore - 2, 0) // 暂停扣2分
+        cooperationScore = Math.max(cooperationScore - 3, 0)
         w.push('项目暂停中')
       }
       if (d.hasIssue) {
-        stabilityScore = Math.max(stabilityScore - 1, 0) // 有问题扣1分
+        cooperationScore = Math.max(cooperationScore - 2, 0)
         w.push('存在未解决问题')
       }
-      stabilityScore = Math.round(stabilityScore * 10) / 10
+      cooperationScore = Math.round(cooperationScore * 10) / 10
 
       // === 总分 ===
       const totalScore = Math.round(
-        (revenueScore + executionScore + roiScore + paymentScore + stabilityScore) * 10
+        (revenueScore + executionScore + roiScore + paymentScore + cooperationScore) * 10
       ) / 10
 
       // === 分档 ===
@@ -649,7 +668,7 @@ export function calcProjectQualityRanking(
         executionScore,
         roiScore,
         paymentScore,
-        stabilityScore,
+        cooperationScore,
         totalScore,
         tier,
         tierOrder,
