@@ -21,12 +21,13 @@ type SyncData = {
 }
 
 type ServerMessage =
-  | { type: 'sync'; data: SyncData }
+  | { type: 'sync'; data: SyncData; _v?: number }
   | { type: 'reset' }
 
 let ws: WebSocket | null = null
 let isReceiving = false // 正在从服务器接收数据，阻止反向同步
 let isReconnecting = false // 重连后短暂标记，此期间的sync消息不覆盖本地
+let lastAppliedVersion = 0 // 已应用的最大版本号，防止旧数据覆盖新数据
 let pushTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let connectionCallback: ((connected: boolean) => void) | null = null
@@ -113,15 +114,22 @@ export function initSync(
       const msg: ServerMessage = JSON.parse(event.data)
 
       if (msg.type === 'sync') {
+        // 版本号保护：如果收到的版本号不大于已应用的版本，说明是旧数据回响，直接丢弃
+        const msgVersion = typeof msg._v === 'number' ? msg._v : 0
+        if (msgVersion > 0 && msgVersion <= lastAppliedVersion) {
+          console.log('[Sync] 忽略旧版本数据 (_v:', msgVersion, '<=', lastAppliedVersion, ')')
+          return
+        }
+
         // 重连保护窗口内忽略 sync 消息：我们已经推送了本地最新状态
-        // 避免服务器回响或其他客户端的旧数据覆盖本地修改
         if (isReconnecting) {
-          console.log('[Sync] 重连保护窗口内忽略 sync')
+          console.log('[Sync] 重连保护窗口内忽略 sync (_v:', msgVersion, ')')
           return
         }
         // 标记正在接收，阻止本地订阅回推
         isReceiving = true
         onSync(msg.data)
+        lastAppliedVersion = Math.max(lastAppliedVersion, msgVersion)
         // 释放标记（等 store 更新 + persist 写入完成）
         setTimeout(() => {
           isReceiving = false
@@ -168,4 +176,14 @@ export function setSyncStateProvider(fn: () => SyncData) {
 /** 当前是否已连接 */
 export function isWsConnected() {
   return ws !== null && ws.readyState === WebSocket.OPEN
+}
+
+/** 设置本地已应用的服务端版本号（用于 bootstrap 初始化） */
+export function setAppliedVersion(v: number) {
+  lastAppliedVersion = v
+}
+
+/** 获取当前已应用的服务端版本号 */
+export function getAppliedVersion() {
+  return lastAppliedVersion
 }

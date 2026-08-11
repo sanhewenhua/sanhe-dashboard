@@ -21,15 +21,25 @@ let serverData = null
 try {
   const raw = fs.readFileSync(DATA_FILE, 'utf8')
   serverData = JSON.parse(raw)
+  // 兼容旧数据：如果没有版本号，初始化为 0
+  if (typeof serverData._v !== 'number') serverData._v = 0
 } catch {
   // 首次启动，无数据文件
 }
 
-function saveData() {
+/** 递增版本号并持久化 */
+function bumpVersion() {
+  if (!serverData) serverData = {}
+  serverData._v = (serverData._v || 0) + 1
   fs.writeFileSync(DATA_FILE, JSON.stringify(serverData, null, 2))
+  console.log(`[Data] 版本 ${serverData._v} 已持久化`)
 }
 
 function broadcast(message, exclude = null) {
+  // 自动附加版本号
+  if (serverData && typeof serverData._v === 'number') {
+    message._v = serverData._v
+  }
   const msg = JSON.stringify(message)
   wss.clients.forEach((client) => {
     if (client.readyState === 1 && client !== exclude) {
@@ -48,10 +58,11 @@ app.get('/api/data', (req, res) => {
 // 保存全量数据 + 广播给其他客户端
 app.post('/api/data', (req, res) => {
   const incoming = req.body
+  // 保留服务端的版本号（客户端不应篡改 _v），递增
   serverData = incoming
-  saveData()
+  bumpVersion()
   broadcast({ type: 'sync', data: serverData })
-  res.json({ ok: true })
+  res.json({ ok: true, _v: serverData._v })
 })
 
 // 重置数据
@@ -75,8 +86,8 @@ wss.on('connection', (ws) => {
       if (msg.type === 'update') {
         // 客户端通过 WS 发送更新
         serverData = msg.data
-        saveData()
-        // 广播给其他客户端（不回发给发送者）
+        bumpVersion()
+        // 广播给其他客户端（不回发给发送者），带上版本号
         broadcast({ type: 'sync', data: serverData }, ws)
       }
     } catch (e) {
