@@ -5,6 +5,7 @@ import {
   AppstoreOutlined,
   TeamOutlined,
   BarChartOutlined,
+  TrophyOutlined,
   SettingOutlined,
   LogoutOutlined,
   PlusOutlined,
@@ -81,6 +82,7 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
       label: g.name,
     })),
     { key: '/performance', icon: <BarChartOutlined />, label: '绩效统计' },
+    { key: '/ranking', icon: <TrophyOutlined />, label: '项目质量' },
     { key: '/staff', icon: <SettingOutlined />, label: '员工管理' },
   ]
 
