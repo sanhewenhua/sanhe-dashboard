@@ -11,7 +11,7 @@ import GroupDetail from './pages/GroupDetail'
 import ProjectDetail from './pages/ProjectDetail'
 import Performance from './pages/Performance'
 import StaffManage from './pages/StaffManage'
-import ProjectRanking from './pages/ProjectRanking'
+import Analysis from './pages/Analysis'
 
 function AppRoutes() {
   const { isLoggedIn } = useStore()
@@ -33,7 +33,8 @@ function AppRoutes() {
         <Route path="/group/:groupId" element={<GroupDetail />} />
         <Route path="/project/:projectId" element={<ProjectDetail />} />
         <Route path="/performance" element={<Performance />} />
-        <Route path="/ranking" element={<ProjectRanking />} />
+        <Route path="/ranking" element={<Navigate to="/analysis" replace />} />
+        <Route path="/analysis" element={<Analysis />} />
         <Route path="/staff" element={<StaffManage />} />
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
